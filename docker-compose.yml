@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  application:
+    restart: unless-stopped
+    build: .
+    expose:
+      - 3333
+    networks:
+      - app_network
+  nginx:
+    restart: unless-stopped
+    build: ./.nginx
+    container_name: cyber_garden_frontend
+    expose:
+      - 80
+    depends_on:
+      - application
+    networks:
+      - app_network
+      - server
+
+networks:
+  app_network:
+    driver: bridge
+  server:
+    external: true
