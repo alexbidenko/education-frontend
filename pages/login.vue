@@ -1,30 +1,28 @@
 <template>
   <v-form>
-    <v-container
-      cols="12"
-      sm="12"
-      md="12"
-      class="d-flex justify-center align-center flex-column"
-    >
+    <v-container>
       <v-row>
-        <v-col>
+        <v-col cols="12" md="8" class="mx-auto">
           <v-text-field
             :email="login.email"
             label="Email"
             outlined
+            full-width
           ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
           <v-text-field
             :password="login.password"
             label="Пароль"
             outlined
+            full-width
           ></v-text-field>
+          <div class="d-flex justify-space-between">
+            <v-btn depressed color="primary" @click="userLogin">Войти</v-btn>
+            <v-btn depressed color="secondary" to="/registration"
+              >Зарегистрироваться</v-btn
+            >
+          </div>
         </v-col>
       </v-row>
-      <v-btn depressed color="primary" @click="userLogin">Войти</v-btn>
     </v-container>
   </v-form>
 </template>

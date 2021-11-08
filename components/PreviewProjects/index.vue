@@ -1,27 +1,31 @@
 <template>
-  <v-col cols="12" sm="6" md="8">
-    <v-card>
-      <v-menu offset-y>
-        <template #activator="{ on, attrs }">
-          <v-btn
-            color="primary"
-            dark
-            v-bind="attrs"
-            class="ml-auto d-block"
-            v-on="on"
-          >
-            Добавить
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item>
-            <v-list-item-title>Создать</v-list-item-title>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title>Присоединиться</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+  <v-col cols="12" :sm="preview ? 6 : 12" :md="preview ? 8 : 12">
+    <v-card v-if="!connect">
+      <div style="display: flex">
+        <v-card-text class="py-2">Список проектов</v-card-text>
+        <v-menu offset-y>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              color="primary"
+              dark
+              v-bind="attrs"
+              class="ml-auto d-block"
+              v-on="on"
+            >
+              Добавить
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item>
+              <v-list-item-title>Создать</v-list-item-title>
+            </v-list-item>
+            <v-list-item link to="/search">
+              <v-list-item-title>Присоединиться</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
     </v-card>
     <v-card class="mt-4">
       <v-list three-line>
@@ -51,17 +55,34 @@
             </v-list-item-content>
 
             <v-list-item-action>
-              <v-btn color="primary" to="/">Перейти</v-btn>
+              <v-btn color="primary" :to="`/projects/${index + 1}`"
+                >Перейти</v-btn
+              >
             </v-list-item-action>
           </v-list-item>
         </template>
       </v-list>
     </v-card>
+
+    <v-btn v-if="preview" to="/projects" color="primary" class="my-4"
+      >Все проекты</v-btn
+    >
   </v-col>
 </template>
 
 <script>
 export default {
+  name: 'PreviewProjects',
+  props: {
+    preview: {
+      type: Boolean,
+      default: false,
+    },
+    connect: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     items: [
       {

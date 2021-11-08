@@ -26,8 +26,8 @@
     </v-navigation-drawer>
     <v-app-bar :clipped-left="clipped" fixed app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
+      <v-btn icon @click.stop="$router.back">
+        <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
       <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>mdi-application</v-icon>
@@ -42,9 +42,7 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <nuxt />
-      </v-container>
+      <nuxt />
     </v-main>
     <v-navigation-drawer v-model="rightDrawer" right temporary fixed>
       <v-list>
@@ -75,8 +73,12 @@ export default {
           title: 'Кабинет',
           to: '/',
         },
+        {
+          icon: 'mdi-magnify',
+          title: 'Поиск',
+          to: '/search',
+        },
       ],
-      miniVariant: false,
       rightDrawer: false,
       title: 'Vuetify.js',
     }

@@ -3,7 +3,7 @@ import { Actions } from '~/store/types'
 
 const auth: Middleware = async ({ app, redirect, $axios, store }) => {
   if (!app.$cookies.get('TOKEN')) {
-    redirect('/auth')
+    redirect('/login')
     return
   }
 

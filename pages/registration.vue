@@ -1,22 +1,17 @@
 <template>
   <v-form>
-    <v-container
-      cols="12"
-      sm="12"
-      md="12"
-      class="d-flex justify-center align-center flex-column"
-    >
-      <v-row>
+    <v-container fluid class="d-flex justify-center align-center flex-column">
+      <v-row class="col-12">
         <v-col>
           <v-text-field :name="registration.name" label="Имя" />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row class="col-12">
         <v-col>
           <v-text-field :surname="registration.surname" label="Фамилия" />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row class="col-12">
         <v-col>
           <v-text-field
             :patronymic="registration.patronymic"
@@ -24,7 +19,7 @@
           />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row class="col-12">
         <v-col>
           <v-select
             v-model="typeUserValue"
@@ -33,17 +28,17 @@
           />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row class="col-12">
         <v-col>
           <v-text-field :email="registration.email" label="Email" />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row class="col-12">
         <v-col>
           <v-text-field :password="registration.password" label="Пароль" />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row class="col-12">
         <v-col>
           <v-menu
             ref="menu"
@@ -74,9 +69,13 @@
           </v-menu>
         </v-col>
       </v-row>
-      <v-btn depressed color="primary" @click="registrationInfo"
-        >Зарегистрироваться</v-btn
-      >
+      <v-row class="d-flex justify-space-between col-12">
+        <v-btn color="primary" depressed to="/login">Войти</v-btn>
+
+        ><v-btn depressed color="secondary" @click="registrationInfo"
+          >Зарегистрироваться</v-btn
+        >
+      </v-row>
     </v-container>
   </v-form>
 </template>
