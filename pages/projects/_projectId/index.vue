@@ -8,7 +8,7 @@
             src="https://static.independent.co.uk/s3fs-public/thumbnails/image/2020/05/01/08/avatar-sigourney-weaver.jpg?width=1200&auto=webp&quality=75"
           />
         </v-card>
-        <v-card class="mb-4 p-1">
+        <v-card class="mb-4 pa-2">
           <v-chip class="ma-1">Default</v-chip>
           <v-chip class="ma-1">Default</v-chip>
           <v-chip class="ma-1">Default</v-chip>
@@ -44,6 +44,9 @@
             </v-list-item>
           </template>
         </v-list>
+        <v-card class="mb-4">
+          <TimeLine />
+        </v-card>
       </v-col>
       <v-col cols="12" md="6">
         <v-card class="mb-4">
@@ -55,11 +58,8 @@
         <ContributeCard v-for="i in 5" :key="i" />
       </v-col>
       <v-col cols="12" md="3">
-        <v-card class="mb-4">
-          <div v-for="i in 5" :key="i">
-            <v-card-title>Загружен файл</v-card-title>
-            <v-card-text>Загружен файл, который все сломал</v-card-text>
-          </div>
+        <v-card v-for="i in 5" :key="i">
+          <CommentCard />
         </v-card>
       </v-col>
     </v-row>
@@ -67,9 +67,15 @@
 </template>
 
 <script>
+import CommentCard from '../../../components/CommentCard'
 import ContributeCard from '~/components/ContributeCard'
+import TimeLine from '~/components/TimeLine'
 export default {
-  components: { ContributeCard },
+  components: {
+    CommentCard,
+    TimeLine,
+    ContributeCard,
+  },
 
   data: () => ({
     items: [

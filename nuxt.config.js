@@ -3,14 +3,33 @@ import colors from 'vuetify/es5/util/colors'
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - cyber-garden-frontend',
-    title: 'cyber-garden-frontend',
+    titleTemplate: '%s - Work with Me',
+    title: 'Work with Me',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {
+        rel: 'apple-touch-icon',
+        sizes: '180x180',
+        href: '/icons/apple-touch-icon.png',
+      },
+      {
+        rel: 'icon',
+        sizes: '512x512',
+        type: 'image/png',
+        href: '/icons/favicon-512x512.png',
+      },
+      {
+        rel: 'icon',
+        sizes: '192x192',
+        type: 'image/png',
+        href: '/icons/favicon-192x192.png',
+      },
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -51,6 +70,22 @@ export default {
   pwa: {
     manifest: {
       lang: 'ru',
+      name: 'Work with Me',
+      description: 'Приложение для совместной работы над проектами',
+      icons: [
+        {
+          src: '/icons/android-chrome-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+        {
+          src: '/icons/android-chrome-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+      ],
+      theme_color: '#ffffff',
+      short_name: 'Work with Me',
     },
   },
 

@@ -1,45 +1,31 @@
 <template>
   <v-form>
-    <v-container fluid class="d-flex justify-center align-center flex-column">
-      <v-row class="col-12">
-        <v-col>
-          <v-text-field :name="registration.name" label="Имя" />
-        </v-col>
-      </v-row>
-      <v-row class="col-12">
-        <v-col>
-          <v-text-field :surname="registration.surname" label="Фамилия" />
-        </v-col>
-      </v-row>
-      <v-row class="col-12">
-        <v-col>
+    <v-container>
+      <v-row>
+        <v-col cols="12" md="8" class="mx-auto">
+          <v-text-field outlined :name="registration.name" label="Имя" />
           <v-text-field
+            outlined
+            :surname="registration.surname"
+            label="Фамилия"
+          />
+          <v-text-field
+            outlined
             :patronymic="registration.patronymic"
             label="Отчество"
           />
-        </v-col>
-      </v-row>
-      <v-row class="col-12">
-        <v-col>
           <v-select
             v-model="typeUserValue"
             :items="items"
             label="Тип пользователя ?"
+            outlined
           />
-        </v-col>
-      </v-row>
-      <v-row class="col-12">
-        <v-col>
-          <v-text-field :email="registration.email" label="Email" />
-        </v-col>
-      </v-row>
-      <v-row class="col-12">
-        <v-col>
-          <v-text-field :password="registration.password" label="Пароль" />
-        </v-col>
-      </v-row>
-      <v-row class="col-12">
-        <v-col>
+          <v-text-field outlined :email="registration.email" label="Email" />
+          <v-text-field
+            outlined
+            :password="registration.password"
+            label="Пароль"
+          />
           <v-menu
             ref="menu"
             v-model="menu"
@@ -52,6 +38,7 @@
             <template #activator="{ on, attrs }">
               <v-text-field
                 v-model="date"
+                outlined
                 label="Picker in menu"
                 prepend-icon="mdi-calendar"
                 readonly
@@ -67,14 +54,13 @@
               </v-btn>
             </v-date-picker>
           </v-menu>
+          <div class="d-flex justify-space-between">
+            <v-btn depressed color="secondary" @click="registrationInfo"
+              >Зарегистрироваться</v-btn
+            >
+            <v-btn color="primary" depressed to="/login">Войти</v-btn>
+          </div>
         </v-col>
-      </v-row>
-      <v-row class="d-flex justify-space-between col-12">
-        <v-btn color="primary" depressed to="/login">Войти</v-btn>
-
-        ><v-btn depressed color="secondary" @click="registrationInfo"
-          >Зарегистрироваться</v-btn
-        >
       </v-row>
     </v-container>
   </v-form>
@@ -108,28 +94,15 @@ export default {
   },
   methods: {
     async registrationInfo() {
-      const {
-        name,
-        surname,
-        email,
-        password,
-        typeUser,
-        dateRegistration,
-        patronymic,
-      } = this.registration
       try {
-        const response = await this.$axios.$post('', this.registration)
-        if (
-          name !== '' &&
-          surname !== '' &&
-          patronymic !== '' &&
-          email !== '' &&
-          typeUser !== '' &&
-          email !== '' &&
-          dateRegistration !== '' &&
-          password !== ''
-        ) {
-          return null
+        if (Object.values(this.registration).some((el) => !el)) {
+          const response = await this.$axios.$post(
+            'write_user/',
+            this.registration
+          )
+          this.$cookies.set('TOKEN', response.token)
+          this.$axios.defaults.headers.Authorization = `Bearer ${response.token}`
+          console.log(response)
         }
       } catch (error) {
         console.log(error)

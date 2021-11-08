@@ -1,33 +1,51 @@
 <template>
   <div style="overflow-x: auto; width: 100%; height: 100%">
     <div class="pa-4" style="display: flex; width: fit-content">
-      <div
-        v-for="(column, index) in board"
-        :key="column.id"
-        class="mr-4"
-        style="width: 300px; flex: 0 0 300px"
+      <draggable
+        :list="board"
+        :animation="200"
+        ghost-class="ghost-card"
+        group="columns"
+        style="display: flex"
       >
-        <v-card>
-          <v-text-field placeholder="Название колонки" />
+        <div
+          v-for="(column, index) in board"
+          :key="column.id"
+          class="mr-4"
+          style="width: 300px; flex: 0 0 300px"
+        >
+          <v-card>
+            <v-text-field placeholder="Название колонки" v-model="column.title" />
 
-          <v-divider />
+            <v-divider />
 
-          <div class="pa-1 pb-0">
-            <v-card
-              v-for="card in column.cards"
-              :key="card.id"
-              class="mb-2 px-2"
-            >
-              <v-text-field placeholder="Содержание задачи" />
-            </v-card>
-            <v-card>
-              <v-btn style="width: 100%" @click="appendCard(index)"
-                >Добавить</v-btn
+            <div class="pa-1 pb-0">
+              <draggable
+                :list="column.cards"
+                :animation="200"
+                ghost-class="ghost-card"
+                group="cards"
               >
-            </v-card>
-          </div>
-        </v-card>
-      </div>
+                <v-card
+                  v-for="card in column.cards"
+                  :key="card.id"
+                  class="mb-2 px-2"
+                >
+                  <v-text-field
+                    v-model="card.content"
+                    placeholder="Содержание задачи"
+                  />
+                </v-card>
+              </draggable>
+              <v-card>
+                <v-btn style="width: 100%" @click="appendCard(index)"
+                  >Добавить</v-btn
+                >
+              </v-card>
+            </div>
+          </v-card>
+        </div>
+      </draggable>
       <div style="width: 300px">
         <v-card>
           <v-btn style="width: 100%" @click="appendColumn">Добавить</v-btn>
@@ -38,8 +56,14 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
+
 export default {
   name: 'Index',
+
+  components: {
+    draggable,
+  },
 
   data: () => ({
     board: [],
