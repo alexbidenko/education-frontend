@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     build: .
     expose:
-      - 3333
+      - 3000
     networks:
       - app_network
   nginx:

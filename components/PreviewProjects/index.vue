@@ -49,6 +49,10 @@
                 v-html="item.subtitle"
               ></v-list-item-subtitle>
             </v-list-item-content>
+
+            <v-list-item-action>
+              <v-btn color="primary" to="/">Перейти</v-btn>
+            </v-list-item-action>
           </v-list-item>
         </template>
       </v-list>

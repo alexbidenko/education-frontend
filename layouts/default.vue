@@ -38,7 +38,7 @@
       <v-toolbar-title v-text="title" />
       <v-spacer />
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-menu</v-icon>
+        <v-icon>mdi-bell</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
@@ -46,9 +46,9 @@
         <nuxt />
       </v-container>
     </v-main>
-    <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
+    <v-navigation-drawer v-model="rightDrawer" right temporary fixed>
       <v-list>
-        <v-list-item @click.native="right = !right">
+        <v-list-item>
           <v-list-item-action>
             <v-icon light> mdi-repeat </v-icon>
           </v-list-item-action>
@@ -77,7 +77,6 @@ export default {
         },
       ],
       miniVariant: false,
-      right: true,
       rightDrawer: false,
       title: 'Vuetify.js',
     }
