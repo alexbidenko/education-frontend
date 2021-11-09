@@ -16,7 +16,9 @@
             type="password"
           ></v-text-field>
           <div class="d-flex justify-space-between">
-            <v-btn color="primary" @click="userLogin">Войти</v-btn>
+            <v-btn color="primary" :loading="isRequest" @click="userLogin"
+              >Войти</v-btn
+            >
             <v-btn outlined to="/registration">Регистрация</v-btn>
           </div>
         </v-col>
@@ -33,10 +35,12 @@ export default {
       email: '',
       password: '',
     },
+    isRequest: false,
   }),
   methods: {
     async userLogin() {
       try {
+        this.isRequest = true
         const response = await this.$axios.$post('authorization/', this.login)
         this.$cookies.set('USER_ID', response.id)
         this.$cookies.set('USER_EMAIL', response.email)
@@ -45,6 +49,7 @@ export default {
       } catch (error) {
         console.log(error)
       }
+      this.isRequest = false
     },
   },
 }

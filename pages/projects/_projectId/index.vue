@@ -34,8 +34,6 @@ export default {
   }),
 
   mounted() {
-    Pusher.logToConsole = true
-
     const pusher = new Pusher('8da04f0e1ecfefbeaecc', {
       cluster: 'eu',
     })

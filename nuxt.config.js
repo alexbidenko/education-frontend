@@ -4,7 +4,7 @@ const GLOBAL = false
 
 process.env.BASE_URL = GLOBAL
   ? 'https://api-cyber-garden.admire.social/'
-  : process.env.BASE_URL || 'http://192.168.43.101:8000/'
+  : process.env.BASE_URL || 'http://192.168.43.101:8002/'
 
 export default {
   env: {
@@ -44,7 +44,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: [{ src: '@/plugins/vue-dragscroll.js', ssr: false }],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,

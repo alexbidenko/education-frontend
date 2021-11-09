@@ -11,30 +11,41 @@
                 : '/assets/substrate.jpg'
             "
           />
-          <input
-            ref="uploader"
-            class="d-none"
-            type="file"
-            accept="image/*"
-            @change="uploadAvatar"
-          />
-          <v-btn
-            style="top: 8px; right: 8px; position: absolute"
-            color="primary"
-            class="text-none"
-            rounded
-            depressed
-            icon
-            @click="$refs.uploader.click()"
-          >
-            <v-icon>mdi-cloud-upload</v-icon>
-          </v-btn>
+          <template v-if="project.creator[0].id === user.id">
+            <input
+              ref="uploader"
+              class="d-none"
+              type="file"
+              accept="image/*"
+              @change="uploadAvatar"
+            />
+            <v-btn
+              style="top: 8px; right: 8px; position: absolute"
+              color="primary"
+              class="text-none"
+              rounded
+              depressed
+              icon
+              @click="$refs.uploader.click()"
+            >
+              <v-icon>mdi-cloud-upload</v-icon>
+            </v-btn>
+          </template>
         </v-card>
         <v-card v-if="project.tags.length" class="mb-4 pa-2">
-          <v-chip v-for="item in project.tags" :key="item.id" class="ma-1">{{
-            item.name
-          }}</v-chip>
+          <v-chip
+            v-for="item in project.tags"
+            :key="item.id"
+            class="ma-1"
+            :to="`/search?tags=${item.name}`"
+            >{{ item.name }}</v-chip
+          >
         </v-card>
+
+        <v-alert v-if="currentStage" border="left" color="indigo" dark>
+          <small style="width: 100%; display: block">Статус проекта</small>
+          {{ currentStage }}
+        </v-alert>
 
         <v-card class="mb-4">
           <v-list two-line>
@@ -90,7 +101,7 @@
           </v-list-item>
         </v-list>
 
-        <v-list>
+        <v-list v-if="statuses.length">
           <v-subheader>Контрибьюторы</v-subheader>
           <div v-for="(item, index) in statuses" :key="index">
             <v-divider v-if="index !== 0" inset />
@@ -119,10 +130,19 @@
           <v-btn :to="`/projects/${$route.params.projectId}/board`" class="mr-4"
             >Доска</v-btn
           >
-          <v-btn :to="`/projects/${$route.params.projectId}/calendar`"
+          <v-btn
+            :to="`/projects/${$route.params.projectId}/calendar`"
+            class="mr-4"
             >Календарь</v-btn
           >
-          <v-dialog v-model="dialog" max-width="600">
+          <v-dialog
+            v-if="
+              statuses.some((el) => el.user.id === user.id) ||
+              project.creator[0].id === user.id
+            "
+            v-model="dialog"
+            max-width="600"
+          >
             <template #activator="{ on, attrs }">
               <v-btn
                 v-bind="attrs"
@@ -149,14 +169,50 @@
                     placeholder="Описание"
                   />
                   <v-text-field v-model="model.link" placeholder="Ссылка" />
+                  <v-select
+                    v-model="model.type"
+                    :items="items"
+                    label="Тип активности"
+                  ></v-select>
+                  <v-file-input
+                    accept="image/*"
+                    label="Прикрепить файл"
+                    @change="model.file = $event"
+                  />
                 </v-card-text>
                 <v-card-actions class="justify-end">
                   <v-btn text @click="dialog = false">Отменить</v-btn>
-                  <v-btn color="primary" text type="submit">Сохранить</v-btn>
+                  <v-btn
+                    color="primary"
+                    text
+                    type="submit"
+                    :disabled="!model.description || !model.type"
+                    :loading="isRequest"
+                    >Сохранить</v-btn
+                  >
                 </v-card-actions>
               </v-card>
             </v-form>
           </v-dialog>
+        </v-card>
+
+        <v-card v-if="!activities.length && project.creator[0].id === user.id">
+          <v-card-title>Начните развивать свой проект</v-card-title>
+          <v-card-text
+            >Заполните всю информацию проекта, пригласите новых участников
+            проекта, которые помогут вам в его развитии, внесите свой вклад в
+            развитие своей идеи.</v-card-text
+          >
+        </v-card>
+
+        <v-card class="mb-4">
+          <v-card-text class="pb-0">
+            <v-select
+              v-model="selectedType"
+              :items="['Не указано', ...activitiesSelect]"
+              label="Тип активности"
+            />
+          </v-card-text>
         </v-card>
 
         <ContributeCard
@@ -164,35 +220,55 @@
           :key="item.id"
           :activity="item"
         />
+
+        <v-card v-if="!activities.length">
+          <v-card-text>Пустой список проектов</v-card-text>
+        </v-card>
       </v-col>
       <v-col cols="12" md="3">
         <v-card
-          v-if="currentStage && currentStage.toLowerCase().includes('инвест')"
+          v-if="
+            currentStage &&
+            currentStage.toLowerCase().includes('инвест') &&
+            projectStages[0]
+          "
           class="mb-2"
         >
           <v-list-item three-line>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">
-                Заголовок для получения денег
+                Инвестирование
               </v-list-item-title>
-              <v-list-item-subtitle>Описание денег</v-list-item-subtitle>
+              <v-list-item-subtitle>{{
+                projectStages[0].description
+              }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
           <v-card-actions class="d-flex flex-column">
+            <div
+              style="display: flex; justify-content: space-between; width: 100%"
+            >
+              <small>{{
+                moneys.reduce((a, el) => a + +el.sum, 0).toLocaleString()
+              }}</small>
+              <v-spacer />
+              <small>{{ (+projectStages[0].period).toLocaleString() }}</small>
+            </div>
             <v-progress-linear
               color="purple"
               rounded
-              value="80"
+              :value="sum"
             ></v-progress-linear>
-            <PopUp />
+            <PopUp :stage="projectStages[0]" @update="updateMoney" />
           </v-card-actions>
         </v-card>
-        <v-card v-if="project.creator[0].id === user.id" class="mb-2">
+        <v-card v-if="project.creator[0].id === user.id && stage" class="mb-2">
           <v-btn
             style="width: 100%"
             color="secondary"
             small
+            :loading="isSaveStage"
             @click="createStage"
             >Начать {{ stage }}</v-btn
           >
@@ -213,7 +289,12 @@
                   @keydown.ctrl.enter="sendComment"
                 />
                 <div>
-                  <v-btn :disabled="!message" type="submit" icon large>
+                  <v-btn
+                    :disabled="!message || isSendMessage"
+                    type="submit"
+                    icon
+                    large
+                  >
                     <v-icon> mdi-send </v-icon>
                   </v-btn>
                 </div>
@@ -223,6 +304,37 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-dialog v-model="stageDialog" max-width="600">
+      <v-card>
+        <v-card-title>Обозначьте финансовые цели</v-card-title>
+        <v-card-text>
+          <v-textarea
+            v-model="description"
+            placeholder="Расскажите о ваших финансовых целях и необходимой сумме для развития проект."
+            auto-grow
+            rows="4"
+          />
+          <v-text-field
+            v-model="summ"
+            placeholder="Необходимая денежная сумма"
+            type="number"
+          />
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn text @click="stageDialog = false">Отменить</v-btn>
+          <v-btn
+            color="primary"
+            text
+            type="submit"
+            :disabled="!description || isNaN(summ)"
+            :loading="isSaveStage"
+            @click="createStage(description, summ)"
+            >Начать</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -231,7 +343,7 @@ import CommentCard from '~/components/CommentCard'
 import ContributeCard from '~/components/ContributeCard'
 import TimeLine from '~/components/TimeLine'
 import PopUp from '~/components/PopUp'
-import { stages, categories } from '~/assets/statuses'
+import { stages, categories, activitiesSelect } from '~/assets/statuses'
 
 export default {
   components: {
@@ -241,9 +353,11 @@ export default {
     ContributeCard,
   },
 
-  inject: ['messageSubject'],
+  inject: ['messageSubject', 'userSubject'],
 
   data: () => ({
+    description: '',
+    summ: '',
     baseURL: process.env.BASE_URL,
     project: null,
     statuses: [],
@@ -254,11 +368,20 @@ export default {
     dialog: false,
     stages,
     categories,
+    selectedType: 'Не указано',
+    activitiesSelect,
+    isSendMessage: false,
+    isSaveStage: false,
+    stageDialog: false,
+    moneys: [],
     model: {
       name: '',
       description: '',
       link: '',
+      type: '',
+      file: null,
     },
+    isRequest: false,
   }),
 
   async fetch() {
@@ -276,32 +399,38 @@ export default {
           `get_project_comment/${this.$route.params.projectId}/`
         )
       ).comments
-      this.activities = (
-        await this.$axios.$get(
-          `get_project_active/${this.$route.params.projectId}/`
-        )
-      ).activities
+      await this.getActivity()
       this.projectStages = (
         await this.$axios.$get(
           `get_project_stage/${this.$route.params.projectId}/`
         )
       ).stage.reverse()
+      if (this.projectStages[0]?.name.includes('инвест')) {
+        this.moneys = (
+          await this.$axios.$get(`get_stage_money/${this.projectStages[0].id}/`)
+        ).money
+      }
     } catch {
       this.$router.push('/')
     }
   },
 
   computed: {
+    sum() {
+      return Math.ceil(
+        (this.moneys.reduce((a, el) => a + +el.sum, 0) /
+          +this.projectStages[0].period) *
+          100
+      )
+    },
     stageGroup() {
       return stages[categories.indexOf(this.project.category)] || []
     },
     stage() {
-      return (
-        this.projectStages &&
-        this.stageGroup[
-          this.stageGroup.indexOf(this.projectStages[0]?.name) + 1
-        ]
-      )
+      const index = this.stageGroup.indexOf(this.projectStages[0]?.name) + 1
+      return index >= this.stageGroup.length
+        ? ''
+        : this.projectStages && this.stageGroup[index]
     },
     currentStage() {
       return (
@@ -311,6 +440,12 @@ export default {
     },
     user() {
       return this.$store.state.UserModule.user
+    },
+  },
+
+  watch: {
+    selectedType() {
+      this.getActivity()
     },
   },
 
@@ -324,20 +459,65 @@ export default {
         ).comments
       })
     }
+    if (this.userSubject) {
+      this.userSubject.subscribe(async (data) => {
+        if (data.projectId === +this.$route.params.projectId) {
+          this.activities = (
+            await this.$axios.$get(
+              `get_project_active/${this.$route.params.projectId}/`
+            )
+          ).activities
+        }
+      })
+    }
   },
 
   methods: {
-    createStage() {
+    updateMoney() {
       this.$axios
-        .$post('write_stage/', {
-          name: this.stage,
-          project: +this.$route.params.projectId,
-          description: '',
-          period: '',
+        .$get(`get_stage_money/${this.projectStages[0].id}/`)
+        .then((d) => {
+          this.moneys = d.money
         })
-        .then((data) => {
-          this.projectStages.unshift(data)
-        })
+    },
+    async getActivity() {
+      this.activities = (
+        await this.$axios.$get(
+          `get_project_active/${this.$route.params.projectId}/`,
+          {
+            params: {
+              type:
+                this.selectedType !== 'Не указано'
+                  ? this.selectedType
+                  : undefined,
+            },
+          }
+        )
+      ).activities
+    },
+    createStage(description = '', summ = '') {
+      if (!this.stage.includes('инвест') || (description && summ)) {
+        this.isSaveStage = true
+        this.$axios
+          .$post('write_stage/', {
+            name: this.stage,
+            project: +this.$route.params.projectId,
+            description,
+            period: summ,
+          })
+          .then((data) => {
+            this.projectStages.unshift(data)
+            if (data.name.includes('инвест')) {
+              this.$axios.$get(`get_stage_money/${data.id}/`).then((d) => {
+                this.moneys = d.money
+              })
+            }
+          })
+          .finally(() => {
+            this.stageDialog = false
+            this.isSaveStage = false
+          })
+      } else this.stageDialog = true
     },
     uploadAvatar(event) {
       const image = event.target.files[0]
@@ -352,57 +532,99 @@ export default {
       }
     },
     createActive() {
-      this.$axios
-        .$post('write_active/', {
-          ...this.model,
-          project: this.$route.params.projectId,
-          user: this.user.id,
+      const article = `К проекту ${this.project.name} добавлена активность от ${
+        this.statuses.find((el) => el.user.id === this.user.id)?.name || ''
+      } ${this.user.name} ${this.user.last_name}`
+
+      this.isRequest = true
+
+      const fd = new FormData()
+      fd.set('title', article)
+      fd.set(
+        'description',
+        JSON.stringify({
+          userId: this.user.id,
+          message: this.message,
+          projectId: this.project.id,
         })
-        .then((data) => {
-          this.dialog = false
-          this.activities.unshift(data)
-        })
+      )
+
+      Promise.all([
+        this.$axios
+          .$post('write_active/', {
+            ...this.model,
+            project: this.$route.params.projectId,
+            user: this.user.id,
+          })
+          .then((data) => {
+            const fd = new FormData()
+            fd.set('image', this.model.file)
+
+            return this.$axios
+              .$post(`update_active_file/${data.id}/`, fd)
+              .then(({ file }) => ({ ...data, file }))
+          })
+          .then((data) => {
+            this.model.name = ''
+            this.model.link = ''
+            this.model.description = ''
+            this.model.type = ''
+            this.model.file = null
+            this.dialog = false
+            this.activities.unshift(data)
+          })
+          .finally(() => {
+            this.isRequest = false
+          }),
+        this.$axios.$post('write_event/', {
+          name: article,
+          project: +this.project.id,
+          user: this.project.creator[0].id,
+        }),
+        this.$axios.$post(
+          'https://api-cyber-garden.admire.social/api/notification/user/' +
+            this.project.creator[0].id,
+          fd
+        ),
+      ])
     },
     sendComment() {
       const article = `Добавлен комментарий к проекту ${this.project.name} от ${this.user.name} ${this.user.last_name}: ${this.message}`
-      this.$axios
-        .$post('write_comment/', {
-          project: +this.$route.params.projectId,
-          user: this.user.id,
-          description: this.message,
+      this.isSendMessage = true
+
+      const fd = new FormData()
+      fd.set('title', article)
+      fd.set(
+        'description',
+        JSON.stringify({
+          userId: this.user.id,
+          message: this.message,
         })
-        .then(() => {
-          return this.$axios.$post('write_event/', {
-            name: article,
+      )
+
+      Promise.all([
+        this.$axios
+          .$post('write_comment/', {
             project: +this.$route.params.projectId,
             user: this.user.id,
+            description: this.message,
           })
-        })
-        .then(() => {
-          const fd = new FormData()
-          fd.set('title', article)
-          fd.set(
-            'description',
-            JSON.stringify({
-              userId: this.user.id,
-              message: this.message,
-            })
-          )
-          return this.$axios.$post(
-            'https://ws-cyber-garden.admire.social/api/notification/project/' +
-              this.$route.params.projectId,
-            fd
-          )
-        })
-        .then(() => {
-          this.message = ''
-          return this.$axios.$get(
-            `get_project_comment/${this.$route.params.projectId}/`
-          )
-        })
-        .then(({ comments }) => {
-          this.comments = comments
-        })
+          .then(() => {
+            this.message = ''
+            return this.$axios.$get(
+              `get_project_comment/${this.$route.params.projectId}/`
+            )
+          })
+          .then(({ comments }) => {
+            this.comments = comments
+            this.isSendMessage = false
+          }),
+        this.$axios.$post(
+          'https://api-cyber-garden.admire.social/api/notification/project/' +
+            this.$route.params.projectId,
+          fd
+        ),
+      ])
     },
   },
 }

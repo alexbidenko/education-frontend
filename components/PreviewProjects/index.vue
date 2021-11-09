@@ -1,6 +1,12 @@
 <template>
   <v-col cols="12">
-    <v-card v-if="!connect && +$route.params.userId === user.id || $route.fullPath === '/'">
+    <v-card
+      v-if="
+        ((!connect && +$route.params.userId === user.id) ||
+          $route.fullPath === '/') &&
+        controllers
+      "
+    >
       <div style="display: flex">
         <v-card-text class="py-2"
           >{{ contribute ? 'Доступные' : 'Созданные' }} проекты</v-card-text
@@ -36,16 +42,33 @@
             </v-list-item-avatar>
 
             <v-list-item-content>
-              <v-list-item-title v-html="item.name"></v-list-item-title>
-              <v-list-item-subtitle
-                v-html="item.description"
-              ></v-list-item-subtitle>
+              <v-list-item-title>{{ item.name }}</v-list-item-title>
+              <v-list-item-subtitle>{{
+                item.description
+              }}</v-list-item-subtitle>
             </v-list-item-content>
 
-            <v-list-item-action
-              v-if="connect && item.creator[0].id !== user.id"
-            >
-              <v-dialog max-width="600">
+            <v-list-item-content v-if="full">
+              <PreviewMenu :item="item" />
+            </v-list-item-content>
+
+            <v-list-item-content>
+              <div style="text-align: right" class="mr-8">
+                <v-chip
+                  v-for="i in item.tags.slice(0, full ? 7 : 3)"
+                  :key="i.id"
+                  :to="`/search?tags=${i.name}`"
+                  class="mr-2"
+                  >{{ i.name }}</v-chip
+                >
+              </div>
+            </v-list-item-content>
+
+            <v-list-item-action style="min-width: 40px">
+              <v-dialog
+                v-if="connect && item.creator[0].id !== user.id"
+                max-width="600"
+              >
                 <template #activator="{ on, attrs }">
                   <v-btn color="primary" icon v-bind="attrs" v-on="on">
                     <v-icon>mdi-account-plus</v-icon>
@@ -65,7 +88,10 @@
                     </v-card-text>
                     <v-card-actions class="justify-end">
                       <v-btn text @click="dialog.value = false">Отменить</v-btn>
-                      <v-btn text @click="contributeProject(item.id)"
+                      <v-btn
+                        text
+                        :loading="isRequest"
+                        @click="contributeProject(item.id, item)"
                         >Присоединиться</v-btn
                       >
                     </v-card-actions>
@@ -86,7 +112,7 @@
     </v-card>
 
     <v-btn
-      v-if="preview"
+      v-if="preview && projects.length >= 5"
       :to="
         contribute
           ? `/users/${userId}/contributed`
@@ -100,8 +126,10 @@
 </template>
 
 <script>
+import PreviewMenu from './PreviewMenu'
 export default {
   name: 'PreviewProjects',
+  components: { PreviewMenu },
   props: {
     preview: {
       type: Boolean,
@@ -123,11 +151,20 @@ export default {
       type: Boolean,
       default: false,
     },
+    full: {
+      type: Boolean,
+      default: false,
+    },
+    controllers: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     items: ['Участник', 'Ментор', 'Спонсор', 'Эксперт', 'Научный руководитель'],
     role: '',
     baseURL: process.env.BASE_URL,
+    isRequest: false,
   }),
   computed: {
     user() {
@@ -138,16 +175,44 @@ export default {
     },
   },
   methods: {
-    contributeProject(id) {
-      this.$axios
-        .$post('write_status/', {
-          name: this.role,
-          project: id,
-          user: this.$store.state.UserModule.user.id,
+    contributeProject(id, project) {
+      const article = `К проекту ${project.name} присоединился ${this.role} ${this.user.name} ${this.user.last_name}`
+      this.isRequest = true
+
+      const fd = new FormData()
+      fd.set('title', article)
+      fd.set(
+        'description',
+        JSON.stringify({
+          userId: this.user.id,
+          message: this.message,
         })
-        .then(() => {
-          this.$router.push(`/projects/${id}`)
-        })
+      )
+
+      Promise.all([
+        this.$axios
+          .$post('write_status/', {
+            name: this.role,
+            project: id,
+            user: this.$store.state.UserModule.user.id,
+          })
+          .then(() => {
+            this.$router.push(`/projects/${id}`)
+          })
+          .finally(() => {
+            this.isRequest = true
+          }),
+        this.$axios.$post('write_event/', {
+          name: article,
+          project: +id,
+          user: project.creator[0].id,
+        }),
+        this.$axios.$post(
+          'https://api-cyber-garden.admire.social/api/notification/user/' +
+            project.creator[0].id,
+          fd
+        ),
+      ])
     },
   },
 }

@@ -1,5 +1,5 @@
 <template>
-  <PreviewProjects :projects="projects" />
+  <PreviewProjects :projects="projects" full />
 </template>
 
 <script>

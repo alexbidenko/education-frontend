@@ -6,6 +6,15 @@ export const categories = [
   'Социальный проект',
 ]
 
+export const activitiesSelect = [
+  'Инвестиция',
+  'Обзор',
+  'Коммит',
+  'Отчёт',
+  'Помощь',
+  'Предложение',
+]
+
 export const stages = [
   [
     'Приготовление',

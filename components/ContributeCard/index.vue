@@ -7,6 +7,24 @@
     <v-card-text>{{ activity.description }}</v-card-text>
 
     <v-card-actions>
+      <v-btn
+        v-if="activity.link"
+        color="orange lighten-2"
+        text
+        :to="activity.link"
+      >
+        Ссылка
+      </v-btn>
+
+      <v-btn
+        v-if="activity.file"
+        color="orange"
+        text
+        :href="`${baseURL}posts/media/files/${activity.file}`"
+      >
+        Файл
+      </v-btn>
+
       <v-spacer></v-spacer>
 
       <v-btn icon @click="show = !show">
@@ -52,7 +70,13 @@
             @keydown.ctrl.enter="sendMessage"
           />
           <div>
-            <v-btn :disabled="!message" type="submit" icon large>
+            <v-btn
+              :disabled="!message"
+              type="submit"
+              icon
+              large
+              :loading="isRequest"
+            >
               <v-icon> mdi-send </v-icon>
             </v-btn>
           </div>
@@ -65,6 +89,7 @@
 <script>
 export default {
   name: 'ContributeCard',
+  inject: ['messageSubject'],
   props: {
     activity: {
       type: Object,
@@ -74,41 +99,73 @@ export default {
   data: () => ({
     show: false,
     message: '',
+    isRequest: false,
     baseURL: process.env.BASE_URL,
     comments: [],
   }),
 
-  async fetch() {
-    try {
-      this.comments = (
-        await this.$axios.$get(`get_active_comment/${this.activity.id}/`)
-      ).activity_comments.reverse()
-    } catch (error) {
-      console.error(error)
-    }
-  },
   watch: {
     message() {
       this.show = true
     },
+    show(val) {
+      if (val) {
+        this.$axios
+          .$get(`get_active_comment/${this.activity.id}/`)
+          .then((data) => {
+            this.comments = data.activity_comments.reverse()
+          })
+      }
+    },
   },
 
   mounted() {
-    console.log(this.comments)
+    if (this.messageSubject) {
+      this.messageSubject.subscribe(async () => {
+        if (this.show) {
+          this.comments = (
+            await this.$axios.$get(`get_active_comment/${this.activity.id}/`)
+          ).activity_comments.reverse()
+        }
+      })
+    }
   },
 
   methods: {
     sendMessage() {
-      this.$axios
-        .$post(`write_active_comment/`, {
-          description: this.message,
-          activity: this.activity.id,
-          user: this.$store.state.UserModule.user.id,
+      this.isRequest = true
+      const article = `Добавлен комментарий к активности ${this.activity.name} от ${this.$store.state.UserModule.user.name} ${this.$store.state.UserModule.user.last_name}: ${this.message}`
+
+      const fd = new FormData()
+      fd.set('title', article)
+      fd.set(
+        'description',
+        JSON.stringify({
+          userId: this.$store.state.UserModule.user.id,
+          message: this.message,
         })
-        .then((data) => {
-          this.message = ''
-          this.comments.unshift(data)
-        })
+      )
+
+      Promise.all([
+        this.$axios
+          .$post(`write_active_comment/`, {
+            description: this.message,
+            activity: this.activity.id,
+            user: this.$store.state.UserModule.user.id,
+          })
+          .then((data) => {
+            this.message = ''
+            this.comments.unshift(data)
+          })
+          .finally(() => {
+            this.isRequest = false
+          }),
+        this.$axios.$post(
+          'https://api-cyber-garden.admire.social/api/notification/project/' +
+            this.$route.params.projectId,
+          fd
+        ),
+      ])
     },
   },
 }

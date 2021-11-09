@@ -33,6 +33,7 @@
               color="primary"
               :disabled="!validation"
               @click="registrationInfo"
+              :loading="isRequest"
               >Присоединиться</v-btn
             >
             <v-btn outlined to="/login">Войти</v-btn>
@@ -49,6 +50,7 @@ export default {
   data: () => {
     const dateCalendar = new Date().toISOString().substr(0, 10)
     return {
+      isRequest: false,
       date: dateCalendar,
       items: [
         'Обучающийся',
@@ -83,6 +85,7 @@ export default {
     async registrationInfo() {
       try {
         if (this.validation) {
+          this.isRequest = true
           const response = await this.$axios.$post(
             'write_user/',
             this.registration
@@ -96,6 +99,7 @@ export default {
       } catch (error) {
         console.log(error)
       }
+      this.isRequest = false
     },
   },
 }
