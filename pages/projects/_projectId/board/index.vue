@@ -7,6 +7,8 @@
         ghost-class="ghost-card"
         group="columns"
         style="display: flex"
+        @start="onStartColumn(board[$event.oldIndex], $event.oldIndex)"
+        @end="onEndColumn($event.newIndex)"
       >
         <div
           v-for="(column, index) in board"
@@ -108,7 +110,7 @@
                     </v-menu>
                     <v-btn
                       style="width: 100%"
-                      :disabled="card.name"
+                      :disabled="!card.name"
                       @click="saveCard(index, subIndex)"
                       >Сохранить</v-btn
                     >
@@ -151,6 +153,10 @@ export default {
   data: () => ({
     board: [],
     disabled: false,
+    draggableColumn: {
+      column: null,
+      columnIndex: 0,
+    },
     draggableCard: {
       card: null,
       cardIndex: 0,
@@ -173,6 +179,23 @@ export default {
   },
 
   methods: {
+    onStartColumn(column, columnIndex) {
+      this.draggableColumn = {
+        column,
+        columnIndex,
+      }
+    },
+    onEndColumn(colIndex) {
+      this.$axios.$post('board/switch_column/', {
+        column_first: this.draggableColumn.columnIndex,
+        column_second: colIndex,
+        project_id: +this.$route.params.projectId,
+      })
+      this.draggableColumn = {
+        column: null,
+        columnIndex: 0,
+      }
+    },
     onStartCard(card, colIndex, cardIndex) {
       this.draggableCard = {
         card,
@@ -215,7 +238,8 @@ export default {
           name: this.board[index].name,
           order: index + 1,
         })
-        .then(() => {
+        .then((data) => {
+          this.board[index].id = data.Response.id
           this.board[index].order = index + 1
           this.disabled = false
         })
@@ -240,8 +264,7 @@ export default {
 
       this.$axios
         .$post('board/writecard/', {
-          column_order: this.board[columnIndex].order,
-          project_id: +this.$route.params.projectId,
+          column: this.board[columnIndex].id,
           name: this.board[columnIndex].cards[index].name,
           description: this.board[columnIndex].cards[index].description,
           order: index + 1,

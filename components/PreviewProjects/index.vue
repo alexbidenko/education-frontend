@@ -215,7 +215,7 @@ export default {
           user: project.creator[0].id,
         }),
         this.$axios.$post(
-          'https://api-cyber-garden.admire.social/api/notification/user/' +
+          'https://ws-lab-lake.admire.social/api/notification/user/' +
             project.creator[0].id,
           fd
         ),

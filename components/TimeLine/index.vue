@@ -1,5 +1,5 @@
 <template>
-  <v-card class="py-0 mt-4 pr-2 mb-4" v-if="events.length">
+  <v-card v-if="events.length" class="py-0 mt-4 pr-2 mb-4">
     <v-timeline align-top dense>
       <v-timeline-item
         v-for="item in events"

@@ -44,6 +44,7 @@
         v-if="activity.file"
         color="orange"
         text
+        target="_blank"
         :href="`${baseURL}posts/media/files/${activity.file}`"
       >
         Файл
@@ -193,7 +194,7 @@ export default {
             this.isRequest = false
           }),
         this.$axios.$post(
-          'https://api-cyber-garden.admire.social/api/notification/project/' +
+          'https://ws-lab-lake.admire.social/api/notification/project/' +
             this.$route.params.projectId,
           fd
         ),

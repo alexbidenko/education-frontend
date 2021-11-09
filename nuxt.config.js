@@ -1,9 +1,9 @@
 import colors from 'vuetify/es5/util/colors'
 
-const GLOBAL = false
+const GLOBAL = true
 
 process.env.BASE_URL = GLOBAL
-  ? 'https://api-cyber-garden.admire.social/'
+  ? 'https://api-lab-lake.admire.social/'
   : process.env.BASE_URL || 'http://192.168.43.101:8002/'
 
 export default {
@@ -11,8 +11,8 @@ export default {
     BASE_URL: process.env.BASE_URL,
   },
   head: {
-    titleTemplate: '%s - Work with Me',
-    title: 'Work with Me',
+    titleTemplate: '%s - LABLAKE',
+    title: 'LABLAKE',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -78,7 +78,7 @@ export default {
   pwa: {
     manifest: {
       lang: 'ru',
-      name: 'Work with Me',
+      name: 'LABLAKE',
       description: 'Приложение для совместной работы над проектами',
       icons: [
         {
@@ -93,7 +93,7 @@ export default {
         },
       ],
       theme_color: '#ffffff',
-      short_name: 'Work with Me',
+      short_name: 'LABLAKE',
     },
   },
 

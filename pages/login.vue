@@ -30,6 +30,7 @@
 <script>
 export default {
   name: 'Login',
+  layout: 'empty',
   data: () => ({
     login: {
       email: '',

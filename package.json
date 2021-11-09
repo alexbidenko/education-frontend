@@ -1,13 +1,14 @@
 {
-  "name": "cyber-garden-frontend",
+  "name": "lab-lake-frontend",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "nuxt",
-    "build": "cross-env BASE_URL=https://api-cyber-garden.admire.social/ nuxt build",
-    "start": "cross-env BASE_URL=https://api-cyber-garden.admire.social/ nuxt start",
+    "build": "cross-env BASE_URL=https://api-lab-lake.admire.social/ nuxt build",
+    "start": "cross-env BASE_URL=https://api-lab-lake.admire.social/ nuxt start",
     "generate": "nuxt generate",
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
+    "lint:js:fix": "eslint --fix --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint:style": "stylelint \"**/*.{vue,css}\" --ignore-path .gitignore",
     "lint": "yarn lint:js && yarn lint:style"
   },

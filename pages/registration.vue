@@ -32,8 +32,8 @@
             <v-btn
               color="primary"
               :disabled="!validation"
-              @click="registrationInfo"
               :loading="isRequest"
+              @click="registrationInfo"
               >Присоединиться</v-btn
             >
             <v-btn outlined to="/login">Войти</v-btn>
@@ -47,6 +47,7 @@
 <script>
 export default {
   name: 'Registration',
+  layout: 'empty',
   data: () => {
     const dateCalendar = new Date().toISOString().substr(0, 10)
     return {

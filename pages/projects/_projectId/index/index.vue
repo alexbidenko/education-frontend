@@ -4,7 +4,7 @@
       <v-col cols="12" md="3">
         <v-card class="mb-4">
           <img
-            style="width: 100%; display: block"
+            style="width: 100%; display: block; min-height: 40px"
             :src="
               project.image
                 ? `${baseURL}posts/media/proj_img/${project.image}`
@@ -248,7 +248,7 @@
           >
         </v-card>
 
-        <v-card v-if="activities.length" class="mb-4">
+        <v-card class="mb-4">
           <v-card-text class="pb-0">
             <v-select
               v-model="selectedType"
@@ -265,7 +265,7 @@
         />
 
         <v-card v-if="!activities.length">
-          <v-card-text>Пустой список проектов</v-card-text>
+          <v-card-text>Пустой список активностей</v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" md="3">
@@ -637,12 +637,12 @@ export default {
           user: this.project.creator[0].id,
         }),
         this.$axios.$post(
-          'https://api-cyber-garden.admire.social/api/notification/user/' +
+          'https://ws-lab-lake.admire.social/api/notification/user/' +
             this.project.creator[0].id,
           fd
         ),
         this.$axios.$post(
-          'https://api-cyber-garden.admire.social/api/notification/project/' +
+          'https://ws-lab-lake.admire.social/api/notification/project/' +
             this.project.id,
           fd
         ),
@@ -680,7 +680,7 @@ export default {
             this.isSendMessage = false
           }),
         this.$axios.$post(
-          'https://api-cyber-garden.admire.social/api/notification/project/' +
+          'https://ws-lab-lake.admire.social/api/notification/project/' +
             this.$route.params.projectId,
           fd
         ),
@@ -719,7 +719,7 @@ export default {
           user: project.creator[0].id,
         }),
         this.$axios.$post(
-          'https://api-cyber-garden.admire.social/api/notification/user/' +
+          'https://ws-lab-lake.admire.social/api/notification/user/' +
             project.creator[0].id,
           fd
         ),
