@@ -15,7 +15,12 @@
             v-model="model.organization"
             placeholder="Организация"
           />
-          <v-textarea v-model="model.contacts" rows="2" auto-grow />
+          <v-textarea
+            v-model="model.contacts"
+            rows="2"
+            auto-grow
+            placeholder="Контактная информация"
+          />
         </v-card-text>
         <v-card-actions class="justify-end">
           <v-btn text @click="dialog = false">Отменить</v-btn>

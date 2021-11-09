@@ -6,9 +6,33 @@
     <v-card-title>{{ activity.name }}</v-card-title>
     <v-card-text>{{ activity.description }}</v-card-text>
 
+    <v-card-actions v-if="activity.type" class="py-0">
+      <v-list-item class="grow">
+        <v-list-item-avatar color="grey darken-3">
+          <v-img
+            class="elevation-6"
+            alt="avatar"
+            :src="icons[activity.type]"
+          ></v-img>
+        </v-list-item-avatar>
+
+        <v-list-item-content>
+          <v-list-item-title>{{ activity.type }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-card-actions>
+
     <v-card-actions>
       <v-btn
-        v-if="activity.link"
+        v-if="activity.link && activity.link.startsWith('http')"
+        color="orange lighten-2"
+        text
+        :href="activity.link"
+      >
+        Ссылка
+      </v-btn>
+      <v-btn
+        v-if="activity.link && !activity.link.startsWith('http')"
         color="orange lighten-2"
         text
         :to="activity.link"
@@ -102,6 +126,14 @@ export default {
     isRequest: false,
     baseURL: process.env.BASE_URL,
     comments: [],
+    icons: {
+      Коммит: '/assets/icons/commit.svg',
+      Обзор: '/assets/icons/review.png',
+      Помощь: '/assets/icons/assistance.svg',
+      Инвестиция: '/assets/icons/invest.svg',
+      Отчёт: '/assets/icons/report.svg',
+      Предложение: '/assets/icons/idea.png',
+    },
   }),
 
   watch: {

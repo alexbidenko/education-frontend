@@ -1,6 +1,11 @@
 <template>
   <v-list>
-    <v-list-item v-for="i in events" link :to="`/projects/${i.project.id}`">
+    <v-list-item
+      v-for="i in events"
+      :key="i.id"
+      :to="`/projects/${i.project.id}`"
+      link
+    >
       <v-list-item-content :title="i.name">
         <v-list-item-title v-text="i.first"></v-list-item-title>
         <v-list-item-subtitle v-text="i.second"></v-list-item-subtitle>

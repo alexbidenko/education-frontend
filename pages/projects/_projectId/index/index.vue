@@ -164,14 +164,16 @@
                 >
                 <v-card-text>
                   <v-text-field v-model="model.name" placeholder="Название" />
-                  <v-text-field
+                  <v-textarea
                     v-model="model.description"
+                    auto-grow
+                    rows="2"
                     placeholder="Описание"
                   />
                   <v-text-field v-model="model.link" placeholder="Ссылка" />
                   <v-select
                     v-model="model.type"
-                    :items="items"
+                    :items="activitiesSelect"
                     label="Тип активности"
                   ></v-select>
                   <v-file-input
@@ -194,9 +196,50 @@
               </v-card>
             </v-form>
           </v-dialog>
+          <v-dialog v-else max-width="600">
+            <template #activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                dark
+                fixed
+                bottom
+                right
+                fab
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon>mdi-account-plus</v-icon>
+              </v-btn>
+            </template>
+            <template #default="connectDialog">
+              <v-card>
+                <v-toolbar color="primary" dark
+                  >Присоединиться к проекту</v-toolbar
+                >
+                <v-card-text>
+                  <v-select
+                    v-model="role"
+                    :items="items"
+                    label="Выберите роль"
+                  ></v-select>
+                </v-card-text>
+                <v-card-actions class="justify-end">
+                  <v-btn text @click="connectDialog.value = false"
+                    >Отменить</v-btn
+                  >
+                  <v-btn
+                    text
+                    :loading="isRequestConnect"
+                    @click="contributeProject(project.id, project)"
+                    >Присоединиться</v-btn
+                  >
+                </v-card-actions>
+              </v-card>
+            </template>
+          </v-dialog>
         </v-card>
 
-        <v-card v-if="!activities.length && project.creator[0].id === user.id">
+        <v-card v-if="!notEmpty && project.creator[0].id === user.id">
           <v-card-title>Начните развивать свой проект</v-card-title>
           <v-card-text
             >Заполните всю информацию проекта, пригласите новых участников
@@ -205,12 +248,12 @@
           >
         </v-card>
 
-        <v-card class="mb-4">
+        <v-card v-if="activities.length" class="mb-4">
           <v-card-text class="pb-0">
             <v-select
               v-model="selectedType"
               :items="['Не указано', ...activitiesSelect]"
-              label="Тип активности"
+              label="Фильтрация по активности"
             />
           </v-card-text>
         </v-card>
@@ -356,6 +399,8 @@ export default {
   inject: ['messageSubject', 'userSubject'],
 
   data: () => ({
+    items: ['Участник', 'Ментор', 'Спонсор', 'Эксперт', 'Научный руководитель'],
+    role: '',
     description: '',
     summ: '',
     baseURL: process.env.BASE_URL,
@@ -373,7 +418,9 @@ export default {
     isSendMessage: false,
     isSaveStage: false,
     stageDialog: false,
+    isRequestConnect: false,
     moneys: [],
+    notEmpty: false,
     model: {
       name: '',
       description: '',
@@ -451,22 +498,26 @@ export default {
 
   mounted() {
     if (this.messageSubject) {
-      this.messageSubject.subscribe(async () => {
-        this.comments = (
-          await this.$axios.$get(
-            `get_project_comment/${this.$route.params.projectId}/`
-          )
-        ).comments
+      this.messageSubject.subscribe(() => {
+        Promise.all([
+          this.$axios
+            .$get(`get_project_comment/${this.$route.params.projectId}/`)
+            .then(({ comments }) => {
+              this.comments = comments
+            }),
+          this.$axios
+            .$get(`get_project_status/${this.$route.params.projectId}/`)
+            .then(({ statuses }) => {
+              this.statuses = statuses
+            }),
+          this.getActivity(),
+        ])
       })
     }
     if (this.userSubject) {
-      this.userSubject.subscribe(async (data) => {
+      this.userSubject.subscribe((data) => {
         if (data.projectId === +this.$route.params.projectId) {
-          this.activities = (
-            await this.$axios.$get(
-              `get_project_active/${this.$route.params.projectId}/`
-            )
-          ).activities
+          this.getActivity()
         }
       })
     }
@@ -494,6 +545,7 @@ export default {
           }
         )
       ).activities
+      this.notEmpty = this.notEmpty || !!this.activities.length
     },
     createStage(description = '', summ = '') {
       if (!this.stage.includes('инвест') || (description && summ)) {
@@ -557,12 +609,15 @@ export default {
             user: this.user.id,
           })
           .then((data) => {
-            const fd = new FormData()
-            fd.set('image', this.model.file)
+            if (this.model.file) {
+              const fd = new FormData()
+              fd.set('image', this.model.file)
 
-            return this.$axios
-              .$post(`update_active_file/${data.id}/`, fd)
-              .then(({ file }) => ({ ...data, file }))
+              return this.$axios
+                .$post(`update_active_file/${data.id}/`, fd)
+                .then(({ file }) => ({ ...data, file }))
+            }
+            return data
           })
           .then((data) => {
             this.model.name = ''
@@ -584,6 +639,11 @@ export default {
         this.$axios.$post(
           'https://api-cyber-garden.admire.social/api/notification/user/' +
             this.project.creator[0].id,
+          fd
+        ),
+        this.$axios.$post(
+          'https://api-cyber-garden.admire.social/api/notification/project/' +
+            this.project.id,
           fd
         ),
       ])
@@ -622,6 +682,45 @@ export default {
         this.$axios.$post(
           'https://api-cyber-garden.admire.social/api/notification/project/' +
             this.$route.params.projectId,
+          fd
+        ),
+      ])
+    },
+    contributeProject(id, project) {
+      const article = `К проекту ${project.name} присоединился ${this.role} ${this.user.name} ${this.user.last_name}`
+      this.isRequestConnect = true
+
+      const fd = new FormData()
+      fd.set('title', article)
+      fd.set(
+        'description',
+        JSON.stringify({
+          userId: this.user.id,
+          message: this.message,
+        })
+      )
+
+      Promise.all([
+        this.$axios
+          .$post('write_status/', {
+            name: this.role,
+            project: id,
+            user: this.$store.state.UserModule.user.id,
+          })
+          .then(() => {
+            this.$router.app.refresh()
+          })
+          .finally(() => {
+            this.isRequestConnect = true
+          }),
+        this.$axios.$post('write_event/', {
+          name: article,
+          project: +id,
+          user: project.creator[0].id,
+        }),
+        this.$axios.$post(
+          'https://api-cyber-garden.admire.social/api/notification/user/' +
+            project.creator[0].id,
           fd
         ),
       ])

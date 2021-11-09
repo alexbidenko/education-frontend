@@ -49,6 +49,11 @@ export default {
     selectedTags() {
       this.search()
     },
+    $route() {
+      if (this.$route.query.tags)
+        this.selectedTags = this.$route.query.tags.split(',')
+      this.search()
+    },
   },
 
   created() {

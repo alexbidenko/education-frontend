@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row class="py-6">
-      <v-col v-if="user" cols="12" sm="6" md="4">
+      <v-col v-if="user" cols="12" md="6" lg="4">
         <v-card class="mb-4">
           <img
             class="indexPage__avatar"
@@ -80,7 +80,7 @@
           <UserRedact v-if="owner" :user="user" @update="update" />
         </v-card>
       </v-col>
-      <v-col cols="12" sm="6" :md="8">
+      <v-col cols="12" md="6" :lg="8">
         <v-row>
           <PreviewProject preview :projects="projects" :owner="owner" />
           <PreviewProject

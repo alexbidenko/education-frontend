@@ -1,18 +1,16 @@
 <template>
   <v-col cols="12">
-    <v-card
-      v-if="
-        ((!connect && +$route.params.userId === user.id) ||
-          $route.fullPath === '/') &&
-        controllers
-      "
-    >
+    <v-card v-if="controllers">
       <div style="display: flex">
         <v-card-text class="py-2"
           >{{ contribute ? 'Доступные' : 'Созданные' }} проекты</v-card-text
         >
         <v-btn
-          v-if="!contribute"
+          v-if="
+            !contribute &&
+            ((!connect && +$route.params.userId === user.id) ||
+              $route.fullPath === '/')
+          "
           color="primary"
           dark
           class="ml-auto d-flex"
@@ -20,13 +18,22 @@
         >
           Создать
         </v-btn>
-        <v-btn v-else color="primary" dark class="ml-auto d-flex" to="/search">
+        <v-btn
+          v-else-if="
+            (!connect && +$route.params.userId === user.id) ||
+            $route.fullPath === '/'
+          "
+          color="primary"
+          dark
+          class="ml-auto d-flex"
+          to="/search"
+        >
           Присоединиться
         </v-btn>
       </div>
     </v-card>
-    <v-card class="mt-4">
-      <v-list v-if="projects.length">
+    <v-card class="mt-4" style="overflow-y: auto">
+      <v-list v-if="projects.length" min-width="600px">
         <div v-for="(item, index) in projects" :key="item.id">
           <v-divider v-if="index !== 0" inset></v-divider>
 
@@ -58,7 +65,7 @@
                   v-for="i in item.tags.slice(0, full ? 7 : 3)"
                   :key="i.id"
                   :to="`/search?tags=${i.name}`"
-                  class="mr-2"
+                  class="mr-2 mb-1"
                   >{{ i.name }}</v-chip
                 >
               </div>
