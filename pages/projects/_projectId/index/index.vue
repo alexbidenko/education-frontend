@@ -72,7 +72,11 @@
           <v-list-item link :to="`/users/${project.creator[0].id}`">
             <v-list-item-avatar>
               <v-img
-                :src="`${baseURL}posts/media/avatars/${project.creator[0].avatar_image}`"
+                :src="
+                  project.creator[0].avatar_image
+                    ? `${baseURL}posts/media/avatars/${project.creator[0].avatar_image}`
+                    : '/assets/substrate.jpg'
+                "
               ></v-img>
             </v-list-item-avatar>
 
@@ -108,9 +112,7 @@
           </div>
         </v-list>
 
-        <v-card class="mb-4">
-          <TimeLine :project="project" />
-        </v-card>
+        <TimeLine :project="project" />
       </v-col>
       <v-col cols="12" md="6">
         <v-card class="mb-4" style="display: flex">
@@ -164,7 +166,10 @@
         />
       </v-col>
       <v-col cols="12" md="3">
-        <v-card class="mb-2">
+        <v-card
+          v-if="currentStage && currentStage.toLowerCase().includes('инвест')"
+          class="mb-2"
+        >
           <v-list-item three-line>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">
@@ -180,10 +185,10 @@
               rounded
               value="80"
             ></v-progress-linear>
-            <Popup />
+            <PopUp />
           </v-card-actions>
         </v-card>
-        <v-card class="mb-2">
+        <v-card v-if="project.creator[0].id === user.id" class="mb-2">
           <v-btn
             style="width: 100%"
             color="secondary"
@@ -193,6 +198,7 @@
           >
         </v-card>
         <v-card>
+          <v-card-subtitle>Комментарии проекта</v-card-subtitle>
           <CommentCard :comments="comments" />
           <v-divider />
 
@@ -224,12 +230,12 @@
 import CommentCard from '~/components/CommentCard'
 import ContributeCard from '~/components/ContributeCard'
 import TimeLine from '~/components/TimeLine'
-import Popup from '~/components/PopUp'
+import PopUp from '~/components/PopUp'
 import { stages, categories } from '~/assets/statuses'
 
 export default {
   components: {
-    Popup,
+    PopUp,
     CommentCard,
     TimeLine,
     ContributeCard,
@@ -287,7 +293,7 @@ export default {
 
   computed: {
     stageGroup() {
-      return stages[categories.indexOf(this.project.category)]
+      return stages[categories.indexOf(this.project.category)] || []
     },
     stage() {
       return (
@@ -296,6 +302,15 @@ export default {
           this.stageGroup.indexOf(this.projectStages[0]?.name) + 1
         ]
       )
+    },
+    currentStage() {
+      return (
+        this.projectStages &&
+        this.stageGroup[this.stageGroup.indexOf(this.projectStages[0]?.name)]
+      )
+    },
+    user() {
+      return this.$store.state.UserModule.user
     },
   },
 
@@ -341,7 +356,7 @@ export default {
         .$post('write_active/', {
           ...this.model,
           project: this.$route.params.projectId,
-          user: this.$store.state.UserModule.user.id,
+          user: this.user.id,
         })
         .then((data) => {
           this.dialog = false
@@ -349,18 +364,18 @@ export default {
         })
     },
     sendComment() {
-      const article = `Добавлен комментарий к проекту ${this.project.name} от ${this.$store.state.UserModule.user.name} ${this.$store.state.UserModule.user.last_name}: ${this.message}`
+      const article = `Добавлен комментарий к проекту ${this.project.name} от ${this.user.name} ${this.user.last_name}: ${this.message}`
       this.$axios
         .$post('write_comment/', {
           project: +this.$route.params.projectId,
-          user: this.$store.state.UserModule.user.id,
+          user: this.user.id,
           description: this.message,
         })
         .then(() => {
           return this.$axios.$post('write_event/', {
             name: article,
             project: +this.$route.params.projectId,
-            user: this.$store.state.UserModule.user.id,
+            user: this.user.id,
           })
         })
         .then(() => {
@@ -369,12 +384,12 @@ export default {
           fd.set(
             'description',
             JSON.stringify({
-              userId: this.$store.state.UserModule.user.id,
+              userId: this.user.id,
               message: this.message,
             })
           )
           return this.$axios.$post(
-            'http://ws-cyber-garden.admire.social/api/notification/project/' +
+            'https://ws-cyber-garden.admire.social/api/notification/project/' +
               this.$route.params.projectId,
             fd
           )

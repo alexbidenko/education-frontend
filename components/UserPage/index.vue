@@ -5,7 +5,11 @@
         <v-card class="mb-4">
           <img
             class="indexPage__avatar"
-            :src="`${baseURL}posts/media/avatars/${user.avatar_image}`"
+            :src="
+              user.avatar_image
+                ? `${baseURL}posts/media/avatars/${user.avatar_image}`
+                : '/assets/substrate.jpg'
+            "
           />
           <input
             ref="uploader"
@@ -118,9 +122,6 @@ export default {
       ...el.project,
       statusName: el.name,
     }))
-  },
-  mounted() {
-    console.log(this.user)
   },
   methods: {
     update() {

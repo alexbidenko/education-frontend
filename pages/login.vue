@@ -1,26 +1,23 @@
 <template>
   <v-form style="height: 100%; display: flex; align-items: center">
     <v-container>
-      <v-row>
+      <v-row class="py-12">
         <v-col cols="12" md="8" class="mx-auto">
+          <h1 class="text-h4 mb-12">Войдите в свой аккаунт</h1>
           <v-text-field
             v-model="login.email"
             label="Email"
             outlined
-            full-width
           ></v-text-field>
           <v-text-field
             v-model="login.password"
             label="Пароль"
             outlined
-            full-width
             type="password"
           ></v-text-field>
           <div class="d-flex justify-space-between">
-            <v-btn depressed color="primary" @click="userLogin">Войти</v-btn>
-            <v-btn depressed color="secondary" to="/registration"
-              >Зарегистрироваться</v-btn
-            >
+            <v-btn color="primary" @click="userLogin">Войти</v-btn>
+            <v-btn outlined to="/registration">Регистрация</v-btn>
           </div>
         </v-col>
       </v-row>

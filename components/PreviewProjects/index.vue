@@ -1,6 +1,6 @@
 <template>
   <v-col cols="12">
-    <v-card v-if="!connect">
+    <v-card v-if="!connect && +$route.params.userId === user.id || $route.fullPath === '/'">
       <div style="display: flex">
         <v-card-text class="py-2"
           >{{ contribute ? 'Доступные' : 'Созданные' }} проекты</v-card-text
@@ -20,7 +20,7 @@
       </div>
     </v-card>
     <v-card class="mt-4">
-      <v-list three-line>
+      <v-list v-if="projects.length">
         <div v-for="(item, index) in projects" :key="item.id">
           <v-divider v-if="index !== 0" inset></v-divider>
 
@@ -82,9 +82,18 @@
           </v-list-item>
         </div>
       </v-list>
+      <v-card-text v-else>Пустой список проектов</v-card-text>
     </v-card>
 
-    <v-btn v-if="preview" to="/projects" color="primary" class="my-4"
+    <v-btn
+      v-if="preview"
+      :to="
+        contribute
+          ? `/users/${userId}/contributed`
+          : `/users/${userId}/projects`
+      "
+      color="primary"
+      class="my-4"
       >Все проекты</v-btn
     >
   </v-col>
@@ -123,6 +132,9 @@ export default {
   computed: {
     user() {
       return this.$store.state.UserModule.user
+    },
+    userId() {
+      return this.$route.params.userId || this.user.id
     },
   },
   methods: {

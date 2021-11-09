@@ -1,8 +1,9 @@
 <template>
   <v-form style="height: 100%; display: flex; align-items: center">
     <v-container>
-      <v-row>
+      <v-row class="py-12">
         <v-col cols="12" md="8" class="mx-auto">
+          <h1 class="text-h4 mb-12">Присоединиться к нам</h1>
           <v-text-field v-model="registration.name" outlined label="Имя" />
           <v-text-field
             v-model="registration.last_name"
@@ -14,12 +15,6 @@
             outlined
             label="Отчество"
           />
-          <!--          <v-select-->
-          <!--            v-model="typeUserValue"-->
-          <!--            :items="items"-->
-          <!--            label="Тип пользователя ?"-->
-          <!--            outlined-->
-          <!--          />-->
           <v-text-field v-model="registration.email" outlined label="Email" />
           <v-text-field
             v-model="registration.password"
@@ -33,43 +28,14 @@
             label="Повторите пароль"
             type="password"
           />
-          <!--          <v-menu-->
-          <!--            ref="menu"-->
-          <!--            v-model="menu"-->
-          <!--            :close-on-content-click="false"-->
-          <!--            :return-value.sync="date"-->
-          <!--            transition="scale-transition"-->
-          <!--            offset-y-->
-          <!--            min-width="auto"-->
-          <!--          >-->
-          <!--            <template #activator="{ on, attrs }">-->
-          <!--              <v-text-field-->
-          <!--                v-model="date"-->
-          <!--                outlined-->
-          <!--                label="Picker in menu"-->
-          <!--                prepend-icon="mdi-calendar"-->
-          <!--                readonly-->
-          <!--                v-bind="attrs"-->
-          <!--                v-on="on"-->
-          <!--              />-->
-          <!--            </template>-->
-          <!--            <v-date-picker v-model="date" no-title scrollable>-->
-          <!--              <v-spacer />-->
-          <!--              <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>-->
-          <!--              <v-btn text color="primary" @click="$refs.menu.save(date)">-->
-          <!--                OK-->
-          <!--              </v-btn>-->
-          <!--            </v-date-picker>-->
-          <!--          </v-menu>-->
           <div class="d-flex justify-space-between">
             <v-btn
-              depressed
-              color="secondary"
+              color="primary"
               :disabled="!validation"
               @click="registrationInfo"
-              >Зарегистрироваться</v-btn
+              >Присоединиться</v-btn
             >
-            <v-btn color="primary" depressed to="/login">Войти</v-btn>
+            <v-btn outlined to="/login">Войти</v-btn>
           </div>
         </v-col>
       </v-row>
@@ -97,10 +63,8 @@ export default {
         name: '',
         last_name: '',
         patronimyc: '',
-        // typeUser: '',
         email: '',
         password: '',
-        // dateRegistration: dateCalendar,
       },
     }
   },

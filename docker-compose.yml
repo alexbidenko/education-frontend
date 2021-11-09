@@ -11,7 +11,7 @@ services:
   nginx:
     restart: unless-stopped
     build: ./.nginx
-    container_name: work_with_me_frontend
+    container_name: cyber_garden_frontend
     expose:
       - 80
     depends_on:
