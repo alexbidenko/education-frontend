@@ -1,16 +1,34 @@
 import { Middleware } from '@nuxt/types'
 import { Actions } from '~/store/types'
 
-const auth: Middleware = async ({ app, redirect, $axios, store }) => {
-  if (!app.$cookies.get('TOKEN')) {
+const auth: Middleware = async ({ app, redirect, store, route }) => {
+  if (
+    !app.$cookies.get('USER_ID') &&
+    !route.fullPath.startsWith('/login') &&
+    !route.fullPath.startsWith('/registration')
+  ) {
     redirect('/login')
     return
   }
 
-  const result = await $axios.$post('/auth')
-
-  if (!store.state.UserModule.user) {
-    await store.dispatch('UserModule/' + Actions.CHECK_USER, result)
+  try {
+    if (!store.state.UserModule.user && app.$cookies.get('USER_ID')) {
+      await store.dispatch('UserModule/' + Actions.CHECK_USER)
+    }
+    if (
+      app.$cookies.get('USER_ID') &&
+      (route.fullPath.startsWith('/login') ||
+        route.fullPath.startsWith('/registration'))
+    ) {
+      redirect('/')
+    }
+  } catch {
+    if (
+      !route.fullPath.startsWith('/login') &&
+      !route.fullPath.startsWith('/registration')
+    ) {
+      redirect('/login')
+    }
   }
 }
 

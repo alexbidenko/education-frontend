@@ -9,10 +9,12 @@ export default {
   },
   actions: {
     [Actions.CHECK_USER]({ commit }, callback) {
-      return this.$axios.$get('user/details').then((data) => {
-        commit(Mutations.SET_USER, data.user)
-        if (callback) callback(data.user)
-      })
+      return this.$axios
+        .$post('/user/get_email/', { email: this.$cookies.get('USER_EMAIL') })
+        .then((data) => {
+          commit(Mutations.SET_USER, data)
+          if (callback) callback(data)
+        })
     },
     [Actions.LOGOUT]({ commit }) {
       commit(Mutations.SET_USER, null)
@@ -21,7 +23,7 @@ export default {
   },
   mutations: {
     [Mutations.SET_USER](state, value) {
-      state.user = value
+      state.user = state.user && value ? { ...state.user, ...value } : value
     },
   },
   getters: {

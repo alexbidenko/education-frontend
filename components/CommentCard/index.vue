@@ -1,18 +1,20 @@
 <template>
   <div class="mx-auto">
     <v-list subheader two-line>
-      <v-list-item v-for="file in files" :key="file.title">
+      <v-list-item v-for="item in comments" :key="item.date">
         <v-list-item-avatar>
-          <v-icon :class="file.color" dark v-text="file.icon"></v-icon>
+          <v-img
+            :src="`${baseURL}posts/media/avatars/${item.user.avatar_image}`"
+          ></v-img>
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title
             style="white-space: pre-wrap !important"
-            v-text="file.title"
+            v-text="`${item.user.name} ${item.user.last_name}`"
           ></v-list-item-title>
           <v-list-item-subtitle
             style="white-space: pre-wrap !important"
-            v-text="file.subtitle"
+            v-text="item.description"
           ></v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -23,7 +25,14 @@
 <script>
 export default {
   name: 'CommentCard',
+  props: {
+    comments: {
+      type: Array,
+      default: () => [],
+    },
+  },
   data: () => ({
+    baseURL: process.env.BASE_URL,
     files: [
       {
         color: 'blue',

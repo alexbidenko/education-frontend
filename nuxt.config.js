@@ -1,7 +1,15 @@
 import colors from 'vuetify/es5/util/colors'
 
+const GLOBAL = true
+
+process.env.BASE_URL = GLOBAL
+  ? 'https://api-cyber-garden.admire.social/'
+  : process.env.BASE_URL || 'http://192.168.43.101:8000/'
+
 export default {
-  // Global page headers: https://go.nuxtjs.dev/config-head
+  env: {
+    BASE_URL: process.env.BASE_URL,
+  },
   head: {
     titleTemplate: '%s - Work with Me',
     title: 'Work with Me',
@@ -36,7 +44,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: [{ src: '@/plugins/vue-dragscroll.js', ssr: false }],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -63,7 +71,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
 
   axios: {
-    baseURL: 'http://192.168.43.101:8000/',
+    baseURL: process.env.BASE_URL,
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa

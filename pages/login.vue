@@ -1,25 +1,25 @@
 <template>
-  <v-form>
+  <v-form style="height: 100%; display: flex; align-items: center">
     <v-container>
-      <v-row>
+      <v-row class="py-12">
         <v-col cols="12" md="8" class="mx-auto">
+          <h1 class="text-h4 mb-12">Войдите в свой аккаунт</h1>
           <v-text-field
-            :email="login.email"
+            v-model="login.email"
             label="Email"
             outlined
-            full-width
           ></v-text-field>
           <v-text-field
-            :password="login.password"
+            v-model="login.password"
             label="Пароль"
             outlined
-            full-width
+            type="password"
           ></v-text-field>
           <div class="d-flex justify-space-between">
-            <v-btn depressed color="primary" @click="userLogin">Войти</v-btn>
-            <v-btn depressed color="secondary" to="/registration"
-              >Зарегистрироваться</v-btn
+            <v-btn color="primary" :loading="isRequest" @click="userLogin"
+              >Войти</v-btn
             >
+            <v-btn outlined to="/registration">Регистрация</v-btn>
           </div>
         </v-col>
       </v-row>
@@ -35,18 +35,21 @@ export default {
       email: '',
       password: '',
     },
+    isRequest: false,
   }),
   methods: {
     async userLogin() {
-      const { email, password } = this.login
       try {
-        const response = await this.$axios.$post('', this.login)
-        if (email !== '' && password !== '') {
-          return null
-        }
+        this.isRequest = true
+        const response = await this.$axios.$post('authorization/', this.login)
+        this.$cookies.set('USER_ID', response.id)
+        this.$cookies.set('USER_EMAIL', response.email)
+
+        this.$router.push('/')
       } catch (error) {
         console.log(error)
       }
+      this.isRequest = false
     },
   },
 }

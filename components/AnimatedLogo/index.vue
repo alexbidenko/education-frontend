@@ -1,7 +1,7 @@
 <template>
   <transition name="fade">
     <v-card v-if="show" tile class="logoContainer">
-      <img class="logo" src="/icons/android-chrome-192x192.png" />
+      <img class="logo" src="/icons/logo.svg" />
     </v-card>
   </transition>
 </template>
@@ -16,7 +16,7 @@ export default {
   mounted() {
     setTimeout(() => {
       this.show = false
-    }, 2000)
+    }, 1000)
   },
 }
 </script>
@@ -36,7 +36,7 @@ export default {
 }
 
 .logo {
-  animation: animated-logo 3s ease forwards;
+  animation: animated-logo 1.5s ease forwards;
   width: 240px;
   height: 240px;
   margin: auto;
@@ -74,7 +74,7 @@ export default {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s;
+  transition: opacity 0.25s;
 }
 
 .fade-enter,

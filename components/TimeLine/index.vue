@@ -1,46 +1,74 @@
 <template>
-  <v-card class="py-0 mt-4">
+  <v-card class="py-0 mt-4 pr-2 mb-4" v-if="events.length">
     <v-timeline align-top dense>
-      <v-timeline-item color="pink" small>
+      <v-timeline-item
+        v-for="item in events"
+        :key="item.id"
+        color="teal lighten-3"
+        small
+      >
         <v-row class="pt-1">
           <v-col>
-            <strong>New Icon</strong>
-            <div class="caption">Mobile App</div>
-          </v-col>
-        </v-row>
-      </v-timeline-item>
-
-      <v-timeline-item color="teal lighten-3" small>
-        <v-row class="pt-1">
-          <v-col>
-            <strong>Design Stand Up</strong>
-            <div class="caption mb-2">Hangouts</div>
-          </v-col>
-        </v-row>
-      </v-timeline-item>
-
-      <v-timeline-item color="pink" small>
-        <v-row class="pt-1">
-          <v-col>
-            <strong>Lunch break</strong>
-          </v-col>
-        </v-row>
-      </v-timeline-item>
-
-      <v-timeline-item color="teal lighten-3" small>
-        <v-row class="pt-1">
-          <v-col>
-            <strong>Finish Home Screen</strong>
-            <div class="caption">Web App</div>
+            <strong>{{ item.name }}</strong>
+            <div class="caption mb-2">
+              {{ item.user.name }} {{ item.user.last_name }} ({{
+                getDate(item.date)
+              }})
+            </div>
           </v-col>
         </v-row>
       </v-timeline-item>
     </v-timeline>
   </v-card>
+  <div v-else />
 </template>
 
 <script>
 export default {
   name: 'TimeLine',
+
+  inject: ['messageSubject'],
+
+  props: {
+    project: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  data: () => ({
+    events: [],
+  }),
+
+  async fetch() {
+    try {
+      this.events = (
+        await this.$axios.$get(
+          `get_project_event/${this.$route.params.projectId}/`
+        )
+      ).events.map((el) => ({
+        ...el,
+        name: el.name.replace(`к проекту ${this.project.name} `, ''),
+      }))
+    } catch {
+      this.$router.push('/')
+    }
+  },
+
+  mounted() {
+    this.messageSubject.subscribe(async () => {
+      this.events = (
+        await this.$axios.$get(
+          `get_project_event/${this.$route.params.projectId}/`
+        )
+      ).events
+    })
+  },
+
+  methods: {
+    getDate(date) {
+      return new Date(date * 1000).toLocaleString()
+    },
+  },
 }
 </script>
