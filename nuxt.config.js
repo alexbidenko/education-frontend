@@ -1,6 +1,6 @@
 import colors from 'vuetify/es5/util/colors'
 
-const GLOBAL = true
+const GLOBAL = false
 
 process.env.BASE_URL = GLOBAL
   ? 'https://api-cyber-garden.admire.social/'
@@ -44,7 +44,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [{ src: '@/plugins/vue-dragscroll.js', ssr: false }],
+  plugins: [],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,

@@ -1,5 +1,5 @@
 <template>
-  <v-card class="py-0 mt-4 pr-2 mb-4" v-if="events.length">
+  <v-card class="py-0 mt-4 pr-2">
     <v-timeline align-top dense>
       <v-timeline-item
         v-for="item in events"
@@ -11,16 +11,13 @@
           <v-col>
             <strong>{{ item.name }}</strong>
             <div class="caption mb-2">
-              {{ item.user.name }} {{ item.user.last_name }} ({{
-                getDate(item.date)
-              }})
+              {{ item.user.name }} {{ item.user.last_name }} ({{ getDate(item.date) }})
             </div>
           </v-col>
         </v-row>
       </v-timeline-item>
     </v-timeline>
   </v-card>
-  <div v-else />
 </template>
 
 <script>
@@ -46,10 +43,7 @@ export default {
         await this.$axios.$get(
           `get_project_event/${this.$route.params.projectId}/`
         )
-      ).events.map((el) => ({
-        ...el,
-        name: el.name.replace(`к проекту ${this.project.name} `, ''),
-      }))
+      ).events.map((el) => ({ ...el, name: el.name.replace(`к проекту ${this.project.name} `, '') }))
     } catch {
       this.$router.push('/')
     }

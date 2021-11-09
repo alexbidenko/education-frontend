@@ -11,11 +11,6 @@
           <v-text-field v-model="model.last_name" placeholder="Фамилия" />
           <v-text-field v-model="model.patronimyc" placeholder="Отчество" />
           <v-text-field v-model="model.email" placeholder="Email" />
-          <v-text-field
-            v-model="model.organization"
-            placeholder="Организация"
-          />
-          <v-textarea v-model="model.contacts" rows="2" auto-grow />
         </v-card-text>
         <v-card-actions class="justify-end">
           <v-btn text @click="dialog = false">Отменить</v-btn>
@@ -45,8 +40,6 @@ export default {
         last_name: this.user.last_name,
         patronimyc: this.user.patronimyc,
         email: this.user.email,
-        organization: this.user.organization,
-        contacts: this.user.contacts,
       },
     }
   },

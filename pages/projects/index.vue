@@ -1,5 +1,5 @@
 <template>
-  <PreviewProjects :projects="projects" full />
+  <PreviewProjects :projects="projects" />
 </template>
 
 <script>
@@ -12,7 +12,7 @@ export default {
   }),
   async fetch() {
     const data = await this.$axios.$get(
-      `projects/?creator=${this.$route.params.userId}`
+      'projects/'
     )
     this.projects = data.result
   },

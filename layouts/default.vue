@@ -1,6 +1,6 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer v-model="drawer" fixed app v-if="auth">
+    <v-navigation-drawer v-model="drawer" fixed app>
       <v-list>
         <v-list-item
           v-for="(item, i) in items"
@@ -19,7 +19,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-app-bar fixed app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="auth" />
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-btn icon @click.stop="$router.back">
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
@@ -44,7 +44,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer" v-if="auth">
+      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>mdi-bell</v-icon>
       </v-btn>
     </v-app-bar>
@@ -107,14 +107,3 @@ export default {
   },
 }
 </script>
-
-<style>
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.3s;
-}
-.page-enter,
-.page-leave-to {
-  opacity: 0;
-}
-</style>

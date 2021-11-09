@@ -11,41 +11,30 @@
                 : '/assets/substrate.jpg'
             "
           />
-          <template v-if="project.creator[0].id === user.id">
-            <input
-              ref="uploader"
-              class="d-none"
-              type="file"
-              accept="image/*"
-              @change="uploadAvatar"
-            />
-            <v-btn
-              style="top: 8px; right: 8px; position: absolute"
-              color="primary"
-              class="text-none"
-              rounded
-              depressed
-              icon
-              @click="$refs.uploader.click()"
-            >
-              <v-icon>mdi-cloud-upload</v-icon>
-            </v-btn>
-          </template>
+          <input
+            ref="uploader"
+            class="d-none"
+            type="file"
+            accept="image/*"
+            @change="uploadAvatar"
+          />
+          <v-btn
+            style="top: 8px; right: 8px; position: absolute"
+            color="primary"
+            class="text-none"
+            rounded
+            depressed
+            icon
+            @click="$refs.uploader.click()"
+          >
+            <v-icon>mdi-cloud-upload</v-icon>
+          </v-btn>
         </v-card>
         <v-card v-if="project.tags.length" class="mb-4 pa-2">
-          <v-chip
-            v-for="item in project.tags"
-            :key="item.id"
-            class="ma-1"
-            :to="`/search?tags=${item.name}`"
-            >{{ item.name }}</v-chip
-          >
+          <v-chip v-for="item in project.tags" :key="item.id" class="ma-1">{{
+            item.name
+          }}</v-chip>
         </v-card>
-
-        <v-alert v-if="currentStage" border="left" color="indigo" dark>
-          <small style="width: 100%; display: block">Статус проекта</small>
-          {{ currentStage }}
-        </v-alert>
 
         <v-card class="mb-4">
           <v-list two-line>
@@ -83,11 +72,7 @@
           <v-list-item link :to="`/users/${project.creator[0].id}`">
             <v-list-item-avatar>
               <v-img
-                :src="
-                  project.creator[0].avatar_image
-                    ? `${baseURL}posts/media/avatars/${project.creator[0].avatar_image}`
-                    : '/assets/substrate.jpg'
-                "
+                :src="`${baseURL}posts/media/avatars/${project.creator[0].avatar_image}`"
               ></v-img>
             </v-list-item-avatar>
 
@@ -101,7 +86,7 @@
           </v-list-item>
         </v-list>
 
-        <v-list v-if="statuses.length">
+        <v-list>
           <v-subheader>Контрибьюторы</v-subheader>
           <div v-for="(item, index) in statuses" :key="index">
             <v-divider v-if="index !== 0" inset />
@@ -123,7 +108,9 @@
           </div>
         </v-list>
 
-        <TimeLine :project="project" />
+        <v-card class="mb-4">
+          <TimeLine :project="project" />
+        </v-card>
       </v-col>
       <v-col cols="12" md="6">
         <v-card class="mb-4" style="display: flex">
@@ -133,14 +120,7 @@
           <v-btn :to="`/projects/${$route.params.projectId}/calendar`"
             >Календарь</v-btn
           >
-          <v-dialog
-            v-if="
-              statuses.some((el) => el.user.id === user.id) ||
-              project.creator[0].id === user.id
-            "
-            v-model="dialog"
-            max-width="600"
-          >
+          <v-dialog v-model="dialog" max-width="600">
             <template #activator="{ on, attrs }">
               <v-btn
                 v-bind="attrs"
@@ -177,15 +157,6 @@
           </v-dialog>
         </v-card>
 
-        <v-card v-if="!activities.length && project.creator[0].id === user.id">
-          <v-card-title>Начните развивать свой проект</v-card-title>
-          <v-card-text
-            >Заполните всю информацию проекта, пригласите новых участников
-            проекта, которые помогут вам в его развитии, внесите свой вклад в
-            развитие своей идеи.</v-card-text
-          >
-        </v-card>
-
         <ContributeCard
           v-for="item in activities"
           :key="item.id"
@@ -193,55 +164,35 @@
         />
       </v-col>
       <v-col cols="12" md="3">
-        <v-card
-          v-if="
-            currentStage &&
-            currentStage.toLowerCase().includes('инвест') &&
-            projectStages[0]
-          "
-          class="mb-2"
-        >
+        <v-card class="mb-2">
           <v-list-item three-line>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">
-                Инвестирование
+                Заголовок для получения денег
               </v-list-item-title>
-              <v-list-item-subtitle>{{
-                projectStages[0].description
-              }}</v-list-item-subtitle>
+              <v-list-item-subtitle>Описание денег</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
 
           <v-card-actions class="d-flex flex-column">
-            <div
-              style="display: flex; justify-content: space-between; width: 100%"
-            >
-              <small>{{
-                moneys.reduce((a, el) => a + +el.sum, 0).toLocaleString()
-              }}</small>
-              <v-spacer />
-              <small>{{ (+projectStages[0].period).toLocaleString() }}</small>
-            </div>
             <v-progress-linear
               color="purple"
               rounded
-              :value="sum"
+              value="80"
             ></v-progress-linear>
-            <PopUp :stage="projectStages[0]" @update="updateMoney" />
+            <Popup />
           </v-card-actions>
         </v-card>
-        <v-card v-if="project.creator[0].id === user.id && stage" class="mb-2">
+        <v-card class="mb-2">
           <v-btn
             style="width: 100%"
             color="secondary"
             small
-            :loading="isSaveStage"
             @click="createStage"
             >Начать {{ stage }}</v-btn
           >
         </v-card>
         <v-card>
-          <v-card-subtitle>Комментарии проекта</v-card-subtitle>
           <CommentCard :comments="comments" />
           <v-divider />
 
@@ -256,12 +207,7 @@
                   @keydown.ctrl.enter="sendComment"
                 />
                 <div>
-                  <v-btn
-                    :disabled="!message || isSendMessage"
-                    type="submit"
-                    icon
-                    large
-                  >
+                  <v-btn :disabled="!message" type="submit" icon large>
                     <v-icon> mdi-send </v-icon>
                   </v-btn>
                 </div>
@@ -271,37 +217,6 @@
         </v-card>
       </v-col>
     </v-row>
-
-    <v-dialog v-model="stageDialog" max-width="600">
-      <v-card>
-        <v-card-title>Обозначьте финансовые цели</v-card-title>
-        <v-card-text>
-          <v-textarea
-            v-model="description"
-            placeholder="Расскажите о ваших финансовых целях и необходимой сумме для развития проект."
-            auto-grow
-            rows="4"
-          />
-          <v-text-field
-            v-model="summ"
-            placeholder="Необходимая денежная сумма"
-            type="number"
-          />
-        </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn text @click="stageDialog = false">Отменить</v-btn>
-          <v-btn
-            color="primary"
-            text
-            type="submit"
-            :disabled="!description || isNaN(summ)"
-            :loading="isSaveStage"
-            @click="createStage(description, summ)"
-            >Начать</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -309,12 +224,12 @@
 import CommentCard from '~/components/CommentCard'
 import ContributeCard from '~/components/ContributeCard'
 import TimeLine from '~/components/TimeLine'
-import PopUp from '~/components/PopUp'
+import Popup from '~/components/PopUp'
 import { stages, categories } from '~/assets/statuses'
 
 export default {
   components: {
-    PopUp,
+    Popup,
     CommentCard,
     TimeLine,
     ContributeCard,
@@ -323,8 +238,6 @@ export default {
   inject: ['messageSubject'],
 
   data: () => ({
-    description: '',
-    summ: '',
     baseURL: process.env.BASE_URL,
     project: null,
     statuses: [],
@@ -335,10 +248,6 @@ export default {
     dialog: false,
     stages,
     categories,
-    isSendMessage: false,
-    isSaveStage: false,
-    stageDialog: false,
-    moneys: [],
     model: {
       name: '',
       description: '',
@@ -371,41 +280,22 @@ export default {
           `get_project_stage/${this.$route.params.projectId}/`
         )
       ).stage.reverse()
-      if (this.projectStages[0].name.includes('инвест')) {
-        this.moneys = (
-          await this.$axios.$get(`get_stage_money/${this.projectStages[0].id}/`)
-        ).money
-      }
     } catch {
       this.$router.push('/')
     }
   },
 
   computed: {
-    sum() {
-      return Math.ceil(
-        (this.moneys.reduce((a, el) => a + +el.sum, 0) /
-          +this.projectStages[0].period) *
-          100
-      )
-    },
     stageGroup() {
-      return stages[categories.indexOf(this.project.category)] || []
+      return stages[categories.indexOf(this.project.category)]
     },
     stage() {
-      const index = this.stageGroup.indexOf(this.projectStages[0]?.name) + 1
-      return index >= this.stageGroup.length
-        ? ''
-        : this.projectStages && this.stageGroup[index]
-    },
-    currentStage() {
       return (
         this.projectStages &&
-        this.stageGroup[this.stageGroup.indexOf(this.projectStages[0]?.name)]
+        this.stageGroup[
+          this.stageGroup.indexOf(this.projectStages[0]?.name) + 1
+        ]
       )
-    },
-    user() {
-      return this.$store.state.UserModule.user
     },
   },
 
@@ -422,36 +312,17 @@ export default {
   },
 
   methods: {
-    updateMoney() {
+    createStage() {
       this.$axios
-        .$get(`get_stage_money/${this.projectStages[0].id}/`)
-        .then((d) => {
-          this.moneys = d.money
+        .$post('write_stage/', {
+          name: this.stage,
+          project: +this.$route.params.projectId,
+          description: '',
+          period: '',
         })
-    },
-    createStage(description = '', summ = '') {
-      if (!this.stage.includes('инвест') || (description && summ)) {
-        this.isSaveStage = true
-        this.$axios
-          .$post('write_stage/', {
-            name: this.stage,
-            project: +this.$route.params.projectId,
-            description,
-            period: summ,
-          })
-          .then((data) => {
-            this.projectStages.unshift(data)
-            if (data.name.includes('инвест')) {
-              this.$axios.$get(`get_stage_money/${data.id}/`).then((d) => {
-                this.moneys = d.money
-              })
-            }
-          })
-          .finally(() => {
-            this.stageDialog = false
-            this.isSaveStage = false
-          })
-      } else this.stageDialog = true
+        .then((data) => {
+          this.projectStages.unshift(data)
+        })
     },
     uploadAvatar(event) {
       const image = event.target.files[0]
@@ -470,7 +341,7 @@ export default {
         .$post('write_active/', {
           ...this.model,
           project: this.$route.params.projectId,
-          user: this.user.id,
+          user: this.$store.state.UserModule.user.id,
         })
         .then((data) => {
           this.dialog = false
@@ -478,19 +349,18 @@ export default {
         })
     },
     sendComment() {
-      const article = `Добавлен комментарий к проекту ${this.project.name} от ${this.user.name} ${this.user.last_name}: ${this.message}`
-      this.isSendMessage = true
+      const article = `Добавлен комментарий к проекту ${this.project.name} от ${this.$store.state.UserModule.user.name} ${this.$store.state.UserModule.user.last_name}: ${this.message}`
       this.$axios
         .$post('write_comment/', {
           project: +this.$route.params.projectId,
-          user: this.user.id,
+          user: this.$store.state.UserModule.user.id,
           description: this.message,
         })
         .then(() => {
           return this.$axios.$post('write_event/', {
             name: article,
             project: +this.$route.params.projectId,
-            user: this.user.id,
+            user: this.$store.state.UserModule.user.id,
           })
         })
         .then(() => {
@@ -499,12 +369,12 @@ export default {
           fd.set(
             'description',
             JSON.stringify({
-              userId: this.user.id,
+              userId: this.$store.state.UserModule.user.id,
               message: this.message,
             })
           )
           return this.$axios.$post(
-            'https://api-cyber-garden.admire.social/api/notification/project/' +
+            'http://ws-cyber-garden.admire.social/api/notification/project/' +
               this.$route.params.projectId,
             fd
           )
@@ -517,7 +387,6 @@ export default {
         })
         .then(({ comments }) => {
           this.comments = comments
-          this.isSendMessage = false
         })
     },
   },

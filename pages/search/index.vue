@@ -1,31 +1,18 @@
 <template>
-  <v-container fluid>
+  <v-container>
     <v-row>
-      <v-col class="mt-2" cols="12">
+      <v-col cols="12">
         <v-card>
           <v-card-text class="py-0">
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="text"
-                  placeholder="Поиск"
-                  @change="search"
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="selectedTags"
-                  :items="tags"
-                  label="Теги"
-                  multiple
-                />
-                ></v-col
-              >
-            </v-row>
+            <v-text-field
+              v-model="text"
+              placeholder="Поиск"
+              @keydown.enter="search"
+            />
           </v-card-text>
         </v-card>
       </v-col>
-      <PreviewProjects connect :projects="projects" full />
+      <PreviewProjects connect :projects="projects" />
     </v-row>
   </v-container>
 </template>
@@ -38,27 +25,15 @@ export default {
   data: () => ({
     projects: [],
     text: '',
-    tags: [],
-    selectedTags: [],
   }),
   async fetch() {
     await this.search()
-    this.tags = (await this.$axios.$get('tags/')).result.map((el) => el.name)
-  },
-
-  watch: {
-    selectedTags() {
-      this.search()
-    },
-  },
-  created() {
-    this.selectedTags = this.$route.query.tags.split(',')
   },
 
   methods: {
     async search() {
       const data = await this.$axios.$get('projects/', {
-        params: { name: this.text, tags: this.selectedTags.join(',') },
+        params: { name: this.text },
       })
       this.projects = data.result
     },

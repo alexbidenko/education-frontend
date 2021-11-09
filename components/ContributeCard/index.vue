@@ -52,13 +52,7 @@
             @keydown.ctrl.enter="sendMessage"
           />
           <div>
-            <v-btn
-              :disabled="!message"
-              type="submit"
-              icon
-              large
-              :loading="isRequest"
-            >
+            <v-btn :disabled="!message" type="submit" icon large>
               <v-icon> mdi-send </v-icon>
             </v-btn>
           </div>
@@ -80,7 +74,6 @@ export default {
   data: () => ({
     show: false,
     message: '',
-    isRequest: false,
     baseURL: process.env.BASE_URL,
     comments: [],
   }),
@@ -100,9 +93,12 @@ export default {
     },
   },
 
+  mounted() {
+    console.log(this.comments)
+  },
+
   methods: {
     sendMessage() {
-      this.isRequest = true
       this.$axios
         .$post(`write_active_comment/`, {
           description: this.message,
@@ -112,9 +108,6 @@ export default {
         .then((data) => {
           this.message = ''
           this.comments.unshift(data)
-        })
-        .finally(() => {
-          this.isRequest = false
         })
     },
   },

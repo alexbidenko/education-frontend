@@ -1,5 +1,5 @@
 <template>
-  <div v-dragscroll style="overflow-x: auto; width: 100%; height: 100%">
+  <div style="overflow-x: auto; width: 100%; height: 100%">
     <div class="pa-4" style="display: flex; width: fit-content">
       <draggable
         :list="board"
@@ -14,7 +14,7 @@
           class="mr-4"
           style="width: 300px; flex: 0 0 300px"
         >
-          <v-card @mousemove.stop @mousedown.stop>
+          <v-card>
             <v-text-field
               v-if="column.temp"
               v-model="column.name"

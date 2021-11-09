@@ -56,7 +56,7 @@ export default {
     categories,
   }),
   async fetch() {
-    this.items = (await this.$axios.$get('tags/')).result.map((el) => el.name)
+    this.items = (await this.$axios.$get('tags/')).map((el) => el.name)
   },
   methods: {
     create() {

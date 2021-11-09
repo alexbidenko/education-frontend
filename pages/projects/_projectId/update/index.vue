@@ -12,7 +12,7 @@
           ></v-select>
           <div class="d-flex justify-space-between">
             <v-btn depressed color="secondary" to="/">Отмена</v-btn>
-            <v-btn color="primary" depressed type="submit">Сохранить</v-btn>
+            <v-btn color="primary" depressed type="submit">Создать</v-btn>
           </div>
         </v-form>
       </v-col>
