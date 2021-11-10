@@ -277,7 +277,7 @@ export default {
           date_finish: Math.round(date2.getTime() / 1000),
         })
         .then((data) => {
-          this.board[columnIndex].cards[index].id = data.Response.id
+          this.board[columnIndex].cards[index].order = data.Response.order
           this.disabled = false
         })
     },
