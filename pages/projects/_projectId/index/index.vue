@@ -71,6 +71,7 @@
             </v-list-item>
           </v-list>
           <v-btn
+            v-if="project.creator[0].id === user.id"
             style="width: 100%"
             :to="`/projects/${$route.params.projectId}/update`"
             >Редактировать</v-btn
