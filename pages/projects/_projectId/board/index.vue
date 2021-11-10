@@ -175,7 +175,7 @@ export default {
       await this.$axios.$get(
         'board/getboard/' + this.$route.params.projectId + '/'
       )
-    ).columns
+    ).columns.sort((a, b) => (a.order > b.order ? 1 : -1))
   },
 
   methods: {
@@ -186,9 +186,9 @@ export default {
       }
     },
     onEndColumn(colIndex) {
-      this.$axios.$post('board/switch_column/', {
-        column_first: this.draggableColumn.columnIndex,
-        column_second: colIndex,
+      this.$axios.$post('board/switch_columns/', {
+        column_start: this.draggableColumn.columnIndex + 1,
+        column_finish: colIndex + 1,
         project_id: +this.$route.params.projectId,
       })
       this.draggableColumn = {
@@ -204,21 +204,25 @@ export default {
       }
     },
     onEndCard(colIndex, cardIndex) {
-      this.$axios.$post('board/switch/', {
-        project_id: +this.$route.params.projectId,
-        column_order: this.draggableCard.colIndex + 1,
-        card_order: this.draggableCard.cardIndex + 1,
-        column_next:
-          this.board.findIndex((el) =>
-            el.cards.find((card) => card.id === this.draggableCard.card.id)
-          ) + 1,
-        card_next: cardIndex + 1,
+      this.$nextTick(() => {
+        this.$axios.$post('board/switch/', {
+          project_id: +this.$route.params.projectId,
+          column_order: this.draggableCard.colIndex + 1,
+          card_order: this.draggableCard.card.order,
+          column_next:
+            this.board.findIndex((el) =>
+              el.cards.find(
+                (card) => card.name === this.draggableCard.card.name
+              )
+            ) + 1,
+          card_next: cardIndex + 1,
+        })
+        this.draggableCard = {
+          card: null,
+          cardIndex,
+          colIndex,
+        }
       })
-      this.draggableCard = {
-        card: null,
-        cardIndex,
-        colIndex,
-      }
     },
     appendColumn() {
       this.board.push({
@@ -259,17 +263,18 @@ export default {
       const date1 = new Date(this.date1)
       let date2 = new Date(this.date2)
 
-      if (date2.getTime() < date1.getTime())
+      if (date2.getTime() <= date1.getTime())
         date2 = new Date(date1.getTime() + 1000 * 60 * 60 * 24)
 
       this.$axios
         .$post('board/writecard/', {
-          column: this.board[columnIndex].id,
+          column_order: this.board[columnIndex].order,
+          project_id: +this.$route.params.projectId,
           name: this.board[columnIndex].cards[index].name,
           description: this.board[columnIndex].cards[index].description,
           order: index + 1,
           date_start: Math.round(date1.getTime() / 1000),
-          date_finish: Math.round(date2.getTime() / 1000) + 60 * 60 * 24,
+          date_finish: Math.round(date2.getTime() / 1000),
         })
         .then((data) => {
           this.board[columnIndex].cards[index].id = data.Response.id

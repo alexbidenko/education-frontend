@@ -4,7 +4,7 @@
       >{{ activity.user.name }} {{ activity.user.last_name }}</v-card-subtitle
     >
     <v-card-title>{{ activity.name }}</v-card-title>
-    <v-card-text>{{ activity.description }}</v-card-text>
+    <v-card-text v-html="activity.description" />
 
     <v-card-actions v-if="activity.type" class="py-0">
       <v-list-item class="grow">
